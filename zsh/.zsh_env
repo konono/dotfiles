@@ -1,0 +1,31 @@
+#eval $(dircolors -b ~/.dirc)
+#xinput set-prop 10 "Device Enabled" 0
+# Profiling option
+#  zmodload zsh/zprof && zprof
+
+###! configure enviroment !###
+if [ -z $TMUX ]; then
+  export PATH="${PATH}:/opt/homebrew/bin:/opt/homebrew/sbin:/opt/homebrew/opt/coreutils/libexec/gnubin:/Applications/CopyQ.app/Contents/MacOS/:/usr/local/bin:/Users/yyamashi/.codon/bin:"
+  export LANG=en_US.UTF-8
+  export EDITOR='vim'
+  eval $(gdircolors -b ~/.dirc)
+  export ZSH_ENV_LOADED="1"
+  #eval "$(anyenv init - --no-rehash)"
+  # TODO: will be delete
+  export ssh_cli=yukiy
+  export SYSTEMD_LESS=FRXMK
+  export FZF_DEFAULT_COMMAND='rg --files --hidden --glob "!.git"'
+  export FZF_DEFAULT_OPTS='--height 40% --reverse --border'
+  export ZPLUG_HOME=/usr/local/opt/zplug
+  export MANPATH="/usr/local/man:$MANPATH"
+  export MANPATH="$HOME/.linuxbrew/share/man:$MANPATH"
+  export INFOPATH="$HOME/.linuxbrew/share/info:$INFOPATH"
+  export HISTFILE=${HOME}/.zsh_history # 履歴ファイルの保存先
+  export HISTSIZE=10000 # メモリに保存される履歴の件数
+  export SAVEHIST=10000000 # 履歴ファイルに保存される履歴の件数
+  export ZPLUG_LOG_LOAD_SUCCESS=false
+  export ZPLUG_LOG_LOAD_FAILURE=false
+  export SHELL='/bin/zsh'
+  export VAGRANT_EXPERIMENTAL="typed_triggers"
+  export POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=false
+fi
