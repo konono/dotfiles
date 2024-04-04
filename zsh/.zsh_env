@@ -4,8 +4,14 @@
 #  zmodload zsh/zprof && zprof
 
 ###! configure enviroment !###
-if [ -z $TMUX ]; then
-  export PATH="${PATH}:/opt/homebrew/bin:/opt/homebrew/sbin:/opt/homebrew/opt/coreutils/libexec/gnubin:/Applications/CopyQ.app/Contents/MacOS/:/usr/local/bin:/Users/yyamashi/.codon/bin:"
+#if [ -z $TMUX ]; then
+  export PATH="/opt/homebrew/bin:${PATH}"
+  export PATH="/opt/homebrew/sbin:${PATH}"
+  export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:${PATH}"
+  export PATH="/Applications/CopyQ.app/Contents/MacOS/:${PATH}"
+  export PATH="/usr/local/bin:~/.local/bin/platform-tools:${PATH}"
+  export PATH="/Users/yyamashi/.codon/bin:${PATH}"
+  export PATH="/opt/homebrew/opt/ruby/bin:${PATH}"
   export LANG=en_US.UTF-8
   export EDITOR='vim'
   eval $(gdircolors -b ~/.dirc)
@@ -27,5 +33,26 @@ if [ -z $TMUX ]; then
   export ZPLUG_LOG_LOAD_FAILURE=false
   export SHELL='/bin/zsh'
   export VAGRANT_EXPERIMENTAL="typed_triggers"
+  export GOPATH=$HOME/go
+  export GOBIN=$GOPATH/bin
+  export PATH=$PATH:$GOBIN
   export POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=false
-fi
+  # Ruby complie option
+  #export LDFLAGS="-L/opt/homebrew/opt/ruby/lib"
+  #export CPPFLAGS="-I/opt/homebrew/opt/ruby/include"
+  #export PKG_CONFIG_PATH="/opt/homebrew/opt/ruby/lib/pkgconfig"
+  # Podman configuration
+  export DOCKER_HOST='unix:///Users/yyamashi/.local/share/containers/podman/machine/qemu/podman.sock'
+  #export LDFLAGS="-L/usr/local/opt/zlib/lib"
+  #export CPPFLAGS="-I/usr/local/opt/zlib/include"
+  #export PKG_CONFIG_PATH="/usr/local/opt/zlib/lib/pkgconfig"
+  #export LDFLAGS="-L/opt/homebrew/opt/readline/lib" # あとから追記したもの
+  #export CPPFLAGS="-I/opt/homebrew/opt/readline/include" # あとから追記したもの
+  #export PKG_CONFIG_PATH="/opt/homebrew/opt/readline/lib/pkgconfig" # あとから追記したもの
+  export LDFLAGS="-L/usr/local/opt/readline/lib"
+  export CPPFLAGS="-I/usr/local/opt/readline/include"
+  export PKG_CONFIG_PATH="/usr/local/opt/readline/lib/pkgconfig"
+
+
+#fi
+

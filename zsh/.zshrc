@@ -6,14 +6,15 @@ source ~/.zsh_env
 eval "$(sheldon source)"
 eval "$(direnv hook zsh)"
 ## Change pipenv to create a virtualenv in project.
-export PIPENV_VENV_IN_PROJECT=1
-
-## Set path for pyenv
-export PYENV_ROOT="${HOME}/.pyenv"
-if [ -d "${PYENV_ROOT}" ]; then
-    eval "$(pyenv init - --no-rehash)"
-fi
+# export PIPENV_VENV_IN_PROJECT=1
+#
+# ## Set path for pyenv
+# export PYENV_ROOT="${HOME}/.pyenv"
+# if [ -d "${PYENV_ROOT}" ]; then
+#     eval "$(pyenv init - --no-rehash)"
+# fi
 source ~/secret.env
+source "$HOME/.rye/env"
 
 # Colors can be changed by using zstyle with a pattern of the form :prompt:pure:$color_name and style color. The color names, their default, and what part they affect are:
 #
@@ -81,6 +82,7 @@ zstyle ':completion:*:*:docker:*' option-stacking yes
 zstyle ':completion:*:*:docker-*:*' option-stacking yes
 zstyle ':completion:*' list-separator '-->'
 zstyle ':completion:*:manuals' separate-sections true
+#zstyle ':completion:*' special-dirs true
 
 #zstyle ':completion:*:messages' format '%F{YELLOW}%d'$DEFAULT
 #zstyle ':completion:*:warnings' format '%F{RED}No matches for:''%F{YELLOW} %d'$DEFAULT
@@ -169,10 +171,10 @@ bindkey -e                                                    # Emacs keybind
 bindkey -v '^t' peco-ssh                                      # 自作のpecoでsshホストを選択
 bindkey -v '^a' beginning-of-line                             # 行頭へ(menuselectでは補完候補の先頭へ)
 bindkey -v '^b' backward-char                                 # 1文字左へ(menuselectでは補完候補1つ左へ)
-bindkey -v 'b' backward-word                                  # 1文字右へ(menuselectでは補完候補1つ右へ)
+#bindkey -v 'b' backward-word                                  # 1文字右へ(menuselectでは補完候補1つ右へ)
 bindkey -v '^e' end-of-line                                   # 行末へ(menuselectでは補完候補の最後尾へ)
 bindkey -v '^f' forward-char                                  # 1文字右へ(menuselectでは補完候補1つ右へ)
-bindkey -v 'f' forward-word                                  # 1文字右へ(menuselectでは補完候補1つ右へ)
+#bindkey -v 'f' forward-word                                  # 1文字右へ(menuselectでは補完候補1つ右へ)
 bindkey -v '^h' backward-delete-char                          # 1文字削除(menuselectでは絞り込みの1文字削除)
 bindkey -v '^i' expand-or-complete                            # 補完開始
 bindkey -v "^K" kill-line
@@ -217,6 +219,9 @@ bindkey -M menuselect '^[[Z' backward-char                     # shift+tabで候
 #zle -N cd-home
 #bindkey "^y" cd-home
 
+bindkey "^[f" forward-word
+bindkey "^[b" backward-word
+
 ### Alias
 alias gob='go build -gcflags "-N -l"'
 alias lxc='sudo lxc'
@@ -232,7 +237,6 @@ alias vi='nvim'
 alias vim='nvim'
 alias nvf='nvim -d'
 alias sudo='sudo ' # magic
-alias zpluginstall='zplug install && zplug load'
 alias exit='texit'
 alias sshk="ps -ef |grep rt_kiba |grep -v grep|cut -d' ' -f4 | xargs -I% kill % && sshpass -p ${PASSWORD4R} ssh -o 'StrictHostKeyChecking no' -f -N rt_kiba1"
 alias ssht="ps -ef |grep rp_totsuka |grep -v grep|cut -d' ' -f4 | xargs -I% kill % && sshpass -p ${PASSWORD4R} ssh -o 'StrictHostKeyChecking no' -f -N rp_totsuka"
@@ -360,12 +364,12 @@ in_container() {
 if [ "$_Z_NO_RESOLVE_SYMLINKS" ]; then
     _z_precmd() {
         (_z --add "${PWD:a}" &)
-		: $RANDOM
+    : $RANDOM
     }
 else
     _z_precmd() {
         (_z --add "${PWD:A}" &)
-		: $RANDOM
+    : $RANDOM
     }
 fi
 
@@ -415,11 +419,17 @@ function tmux_session_selector() {
     fi
   }
 
-# if [ ! ${TERM_PROGRAM} = "vscode" ]; then
-#  tmux_session_selector
-# fi
+if [ ! ${TERM_PROGRAM} = "vscode" ]; then
+ tmux_session_selector
+fi
 # Profiling option
 if (which zprof > /dev/null) ;then
   zprof | less
 fi
 
+
+# >>>> Vagrant command completion (start)
+fpath=(/opt/vagrant/embedded/gems/gems/vagrant-2.3.7/contrib/zsh $fpath)
+fpath=(~/.zfunc $fpath)
+compinit
+# <<<<  Vagrant command completion (end)
