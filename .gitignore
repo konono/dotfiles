@@ -2,3 +2,4 @@
 .un~
 *.zwc
 zsh/zfunc/_*
+zsh/sheldon/sheldon.zsh
