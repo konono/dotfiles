@@ -4,7 +4,6 @@ repo = 'Shougo/dein.vim'
 [[plugins]]
 repo = 'Shougo/deoplete.nvim'
 hook_add = '''
-call dein#add('Shougo/deoplete.nvim')
 let g:deoplete#enable_at_startup = 1
 
 " 補完が自動で開始される文字数
@@ -260,10 +259,10 @@ let g:indent_guides_color_change_percent = 30
 let g:indent_guides_guide_size = 1
 '''
 
-[[plugins]]
-repo = 'tbodt/deoplete-tabnine'
-on_event = ['InsertEnter']
-build = './install.sh'
+#[[plugins]]
+#repo = 'tbodt/deoplete-tabnine'
+#on_event = ['InsertEnter']
+#build = './install.sh'
 
 [[plugins]]
 repo = 'davidhalter/jedi-vim'
@@ -296,14 +295,12 @@ let g:go_highlight_build_constraints = 1
 '''
 
 [[plugins]]
-repo = 'zchee/deoplete-jedi'
+repo = 'deoplete-plugins/deoplete-jedi'
 hook_add = '''
-call dein#add('zchee/deoplete-go', {'build': 'make'})
 '''
 
 [[plugins]]
 repo = 'zchee/deoplete-go'
 hook_add = '''
-call dein#add('zchee/deoplete-go', {'build': 'make'})
 '''
 

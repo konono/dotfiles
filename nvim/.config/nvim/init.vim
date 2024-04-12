@@ -1,9 +1,11 @@
 "common config {{{
+let g:python3_host_prog = "$HOME/.rye/shims/python3"
 
 "encode識別
 filetype off
 filetype plugin indent off
 filetype plugin indent on
+:set encoding=utf-8
 
 "leaderキー変更
 :let mapleader="@"
@@ -135,14 +137,14 @@ colorscheme tender
 
 " encoding config {{{
 
-set fileencodings=ucs-bom,iso-2022-jp,utf-8,cp932,euc-jp,default,latin
+set fileencodings=utf-8,cp932,euc-jp,default,latin,ucs-bom,iso-2022-jp
 set encoding=utf-8
 set fenc=utf-8
 " }}}
 
 "font config {{{
 
-set guifont=Ubuntu\ Mono\ 15
+" set guifont=Ubuntu\ Mono\ 15
 
 " }}}
 
@@ -189,6 +191,10 @@ nnoremap k gk
 nnoremap <Down> gj
 nnoremap <Up>   gk
 
+"ノーマルモードのときにxキー、sキーで削除した文字をヤンクしない
+nnoremap x "_x
+nnoremap s "_s
+
 "grep時に移動を簡単にするためのショートカット集
 nnoremap <S-k> :cN<CR>zz   " 前へ
 nnoremap <S-j> :cnext<CR>zz       " 次へ
@@ -216,7 +222,7 @@ cnoremap <expr> ? getcmdtype() == '?' ? '\?' : '?'
 nnoremap <ESC><ESC> :nohlsearch<CR>
 
 " vを二回で行末まで選択
-vnoremap v $h
+vnoremap $ $h
 
 "レジスタの中身をコマンドモードで貼り付けるためのショートカット
 vnoremap <C-e> y:%s/<C-r>"//g
@@ -248,7 +254,7 @@ if &runtimepath !~# '/dein.vim'
 endif
 
 " 設定開始
-
+let g:dein#install_github_api_token = ''
 if dein#load_state(s:dein_dir)
 
   call dein#begin(s:dein_dir)
