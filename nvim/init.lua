@@ -1,0 +1,6 @@
+require("keymaps")
+require("global")
+require("misc")
+require("options")
+require("colorscheme")
+require("lazy_nvim")
