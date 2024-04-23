@@ -330,3 +330,16 @@ if [ ! ${TERM_PROGRAM} = "vscode" ] && [ ! ${TERM_PROGRAM} = "tmux" ]; then
   tmux_session_selector
 fi
 
+precmd() {
+  if [ -d .git -a ! -x .git/hooks/pre-commit -a -e .pre-commit-config.yaml ] && which pre-commit >& /dev/null; then
+    pre-commit install
+  fi
+  if [ -e .venv ] && [ ! -e .envrc ] && which direnv >& /dev/null; then
+    cat << "EOF" > .envrc
+if [ -e  .venv/ ]; then
+  source .venv/bin/activate
+fi
+EOF
+    direnv allow
+  fi
+}

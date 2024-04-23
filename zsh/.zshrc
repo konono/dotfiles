@@ -25,24 +25,30 @@ function ensure_zcompiled {
 ensure_zcompiled ~/.zshrc
 
 # direnv cache 
-direnv_cache="$HOME/.zsh/cache/direnv.zsh"
-if [ ! -e "$direnv_cache" ]; then
-  direnv hook zsh > $direnv_cache
+if type "direnv" > /dev/null 2>&1; then
+    direnv_cache="$HOME/.zsh/cache/direnv.zsh"
+    if [ ! -e "$direnv_cache" ]; then
+      direnv hook zsh > $direnv_cache
+    fi
+    source "$direnv_cache"
+    unset direnv_cache
 fi
-source "$direnv_cache"
-unset direnv_cache
 
 # sheldon cache technique
-export SHELDON_CONFIG_DIR="$ZSHRC_DIR/sheldon"
-sheldon_cache="$SHELDON_CONFIG_DIR/sheldon.zsh"
-sheldon_toml="$SHELDON_CONFIG_DIR/plugins.toml"
-if [[ ! -r "$sheldon_cache" || "$sheldon_toml" -nt "$sheldon_cache" ]]; then
-  sheldon source > $sheldon_cache
+if type "sheldon" > /dev/null 2>&1; then
+    export SHELDON_CONFIG_DIR="$ZSHRC_DIR/sheldon"
+    sheldon_cache="$SHELDON_CONFIG_DIR/sheldon.zsh"
+    sheldon_toml="$SHELDON_CONFIG_DIR/plugins.toml"
+    if [[ ! -r "$sheldon_cache" || "$sheldon_toml" -nt "$sheldon_cache" ]]; then
+      sheldon source > $sheldon_cache
+    fi
+    source "$sheldon_cache"
+    unset sheldon_cache sheldon_toml
 fi
-source "$sheldon_cache"
-unset sheldon_cache sheldon_toml
 
 source $ZSHRC_DIR/nonlazy.zsh
 zsh-defer source $ZSHRC_DIR/lazy.zsh
-zsh-defer source "$HOME/.rye/env"
+if type "rye" > /dev/null 2>&1; then
+    zsh-defer source "$HOME/.rye/env"
+fi
 zsh-defer unfunction source
