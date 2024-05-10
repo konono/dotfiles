@@ -27,7 +27,47 @@ function grvim(){
   file=""
   line=""
 
-  res="`ggrep --color=auto -rI -n "$1" |peco`"
+  ARGS=()
+  IGNORE_PATTERN=()
+  IGNORE_PATTERN+=(-e ".git" -e "venv" -e ".tox")
+  while (( $# > 0 ))
+  do
+    case $1 in
+      -v)
+        if [[ -z "$2" ]] || [[ "$2" =~ ^-+ ]]; then
+          echo "'option' requires an argument." 1>&2
+          exit 1
+        else
+          IGNORE_PATTERN+=(-e "$2")
+          shift
+        fi
+        ;;
+      *)
+        ARGS=("${ARGS[@]}" "$1")
+        ;;
+    esac
+    shift
+  done
+
+  if [[ "${#ARGS[@]}" -lt 1 ]]; then
+    echo "Too few arguments." 1>&2
+  elif [[ "${#ARGS[@]}" -gt 1 ]]; then
+    echo "Too many arguments." 1>&2
+  fi
+
+  get_nth () {
+    local n=$1
+    shift
+    eval echo \$${n}
+  }
+
+  REGEX_PATTERN=$(get_nth 1 "${ARGS[@]}")
+
+  if [ ${#IGNORE_PATTERN[@]} -eq 0 ]; then
+    res="`ggrep --color=auto -rI -n "$REGEX_PATTERN" |peco`"
+  else
+    res="`ggrep --color=auto -rI -n "$REGEX_PATTERN" |ggrep -v ${IGNORE_PATTERN[@]} |peco`"
+  fi
   file="$(awk -F: -v t="$res" 'BEGIN{split(t, a); print a[1]}')"
   line="$(awk -F: -v t="$res" 'BEGIN{split(t, a); print a[2]}')"
   if [ -n "$file" ] && [ -n "$line" ]; then

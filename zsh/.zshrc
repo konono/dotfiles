@@ -48,7 +48,5 @@ fi
 
 source $ZSHRC_DIR/nonlazy.zsh
 zsh-defer source $ZSHRC_DIR/lazy.zsh
-if type "rye" > /dev/null 2>&1; then
-    zsh-defer source "$HOME/.rye/env"
-fi
+zsh-defer source "$HOME/.rye/env"
 zsh-defer unfunction source
