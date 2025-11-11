@@ -38,10 +38,6 @@ use = ["shell/completion.zsh", "shell/key-bindings.zsh"]
 github = "zsh-users/zsh-completions"
 apply = ['defer']
 
-[plugins.zsh-history-substring-search]
-github = "zsh-users/zsh-history-substring-search"
-apply = ['defer']
-
 [plugins.enhancd]
 github = 'b4b4r07/enhancd'
 apply = ['defer']
@@ -84,3 +80,4 @@ inline = 'autoload -Uz colors && zsh-defer colors'
 
 [plugins.compinit]
 inline = 'autoload -Uz compinit && zsh-defer compinit'
+

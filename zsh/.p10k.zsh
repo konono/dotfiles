@@ -46,11 +46,16 @@
   local cyan='#9AEDFE'
   local white='#F1F1F0'
 
+  # kubecontext の表示を cluster/namespace にする
+  typeset -g POWERLEVEL9K_KUBECONTEXT_CONTENT_EXPANSION='${P9K_KUBECONTEXT_CLUSTER}/${P9K_KUBECONTEXT_NAMESPACE}'
+
+
   # Left prompt segments.
   typeset -g POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(
     # =========================[ Line #1 ]=========================
     context                   # user@host
     dir                       # current directory
+    kubecontext              # ←★ 追加：現在の KUBECONFIG / context / namespace
     vcs                       # git status
     command_execution_time    # previous command duration
     # =========================[ Line #2 ]=========================
@@ -194,6 +199,8 @@
 
 # Tell `p10k configure` which file it should overwrite.
 typeset -g POWERLEVEL9K_CONFIG_FILE=${${(%):-%x}:a}
+
+typeset -g POWERLEVEL9K_KUBECONTEXT_KUBECTL_COMMAND=oc
 
 (( ${#p10k_config_opts} )) && setopt ${p10k_config_opts[@]}
 'builtin' 'unset' 'p10k_config_opts'

@@ -1,53 +1,3 @@
-###! configure enviroment !###
-export PATH="/opt/homebrew/bin:${PATH}"
-export PATH="/opt/homebrew/sbin:${PATH}"
-export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:${PATH}"
-export PATH="/Applications/CopyQ.app/Contents/MacOS/:${PATH}"
-export PATH="/usr/local/bin:~/.local/bin/platform-tools:${PATH}"
-export PATH="/Users/yyamashi/.codon/bin:${PATH}"
-export PATH="/opt/homebrew/opt/ruby/bin:${PATH}"
-export LANG=en_US.UTF-8
-export EDITOR='vim'
-eval $(gdircolors -b ~/.dirc)
-export ZSH_ENV_LOADED="1"
-# TODO: will be delete
-export ssh_cli=yukiy
-export SYSTEMD_LESS=FRXMK
-export FZF_DEFAULT_COMMAND='rg --files --hidden --glob "!.git"'
-export FZF_DEFAULT_OPTS='--height 40% --reverse --border'
-export ZPLUG_HOME=/usr/local/opt/zplug
-export MANPATH="/usr/local/man:$MANPATH"
-export MANPATH="$HOME/.linuxbrew/share/man:$MANPATH"
-export INFOPATH="$HOME/.linuxbrew/share/info:$INFOPATH"
-export HISTFILE=${HOME}/.zsh_history # 履歴ファイルの保存先
-export HISTSIZE=10000 # メモリに保存される履歴の件数
-export SAVEHIST=10000000 # 履歴ファイルに保存される履歴の件数
-export ZPLUG_LOG_LOAD_SUCCESS=false
-export ZPLUG_LOG_LOAD_FAILURE=false
-export SHELL='/bin/zsh'
-export VAGRANT_EXPERIMENTAL="typed_triggers"
-export GOPATH=$HOME/go
-export GOBIN=$GOPATH/bin
-export PATH=$PATH:$GOBIN
-export POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=false
-# Ruby complie option
-#export LDFLAGS="-L/opt/homebrew/opt/ruby/lib"
-#export CPPFLAGS="-I/opt/homebrew/opt/ruby/include"
-#export PKG_CONFIG_PATH="/opt/homebrew/opt/ruby/lib/pkgconfig"
-# Podman configuration
-export DOCKER_HOST=unix://$HOME.local/share/containers/podman/machine/qemu/podman.sock
-#export LDFLAGS="-L/usr/local/opt/zlib/lib"
-#export CPPFLAGS="-I/usr/local/opt/zlib/include"
-#export PKG_CONFIG_PATH="/usr/local/opt/zlib/lib/pkgconfig"
-#export LDFLAGS="-L/opt/homebrew/opt/readline/lib" # あとから追記したもの
-#export CPPFLAGS="-I/opt/homebrew/opt/readline/include" # あとから追記したもの
-#export PKG_CONFIG_PATH="/opt/homebrew/opt/readline/lib/pkgconfig" # あとから追記したもの
-export LDFLAGS="-L/usr/local/opt/readline/lib"
-export CPPFLAGS="-I/usr/local/opt/readline/include"
-export PKG_CONFIG_PATH="/usr/local/opt/readline/lib/pkgconfig"
-## Change pipenv to create a virtualenv in project.
-export PIPENV_VENV_IN_PROJECT=1
-
 # Colors can be changed by using zstyle with a pattern of the form :prompt:pure:$color_name and style color. The color names, their default, and what part they affect are:
 #
 # execution_time (yellow) - The execution time of the last command when exceeding PURE_CMD_MAX_EXEC_TIME.
@@ -91,7 +41,8 @@ zmodload zsh/complist                                          # Menu listのbin
 
 ## 保管をインタラクティブに行う(https://stackoverflow.com/questions/68643931/zsh-s-tab-completion-overwrites-whats-next)
 # zstyle ':completion:*' menu select=2
-# ZLE_REMOVE_SUFFIX_CHARS=$' \t\n;&|'
+ZLE_REMOVE_SUFFIX_CHARS=$' \t\n;&|'
+#zstyle ':completion:*' menu select=2 interactive
 zstyle ':completion:*' menu select=2 interactive
 # SPACESHIP_PROMPT_ADD_NEWLINE=false
 # SPACESHIP_PROMPT_SEPARATE_LINE=false
@@ -119,8 +70,8 @@ zstyle ':completion:*:manuals' separate-sections true
 #zstyle ':completion:*:descriptions' format '%F{yellow}Completing %B%d%b%f'$DEFAULT
 
 ### 補完方法毎にグループ化する。
-zstyle ':completion:*' format '%B%F{blue}%d%f%b'
-zstyle ':completion:*' group-name ''
+#zstyle ':completion:*' format '%B%F{blue}%d%f%b'
+#zstyle ':completion:*' group-name ''
 
 ### 補完侯補をメニューから選択する。
 ### 補完候補に色を付ける。
@@ -140,6 +91,11 @@ zstyle ':completion:*:*files' ignored-patterns '*?.o' '*?~' '*\#'
 # Userは補完候補に出さない
 zstyle ':completion:*' users
 zstyle ':completion:*' parameter
+
+
+# The !parameters part says to hide parameters when the completion is in -command- position, 環境変数を補完の候補に含めない
+zstyle ':completion:*:-command-:*' tag-order '!parameters'
+
 
 ### 補完候補
 ### _oldlist 前回の補完結果を再利用する。
@@ -170,6 +126,13 @@ fpath=($ZSHRC_DIR/zfunc $fpath)
 fpath=(/opt/vagrant/embedded/gems/gems/vagrant-2.3.7/contrib/zsh $fpath)
 compinit
 
+# aws completion
+autoload -Uz bashcompinit
+bashcompinit
+
+complete -C aws_completer aws
+
+
 # Ctrl-Wでパスの文字列などをスラッシュ単位でdeleteできる
 autoload -U select-word-style
 select-word-style bash
@@ -183,37 +146,40 @@ bindkey '^[' insert-last-word
 HISTSIZE=100000
 SAVEHIST=100000
 setopt EXTENDED_HISTORY
-setopt extended_history      # Historyの開始と終了を記録
-setopt hist_ignore_all_dups
-setopt hist_reduce_blanks
-setopt hist_no_store
-setopt share_history
-setopt correct               # コマンドをtypoしたときに聞きなおしてくれる
-setopt list_packed           # 表示を詰めてくれる
+setopt extended_history       # Historyの開始と終了を記録
+setopt hist_expire_dups_first # 履歴を切り詰める際に、重複する最も古いイベントから消す
+setopt hist_ignore_all_dups   # 履歴が重複した場合に古い履歴を削除する
+setopt hist_save_no_dups      # 履歴ファイルに書き出す際、新しいコマンドと重複する古いコマンドは切り捨てる
+setopt hist_ignore_dups       # 直前と同じコマンドラインはヒストリに追加しない
+setopt hist_reduce_blanks     # 余分な空白は詰めて記録
+setopt hist_no_store          # historyコマンドは履歴に登録しない
+setopt share_history          # 全てのセッションで履歴を共有する
+setopt correct                # コマンドをtypoしたときに聞きなおしてくれる
+setopt list_packed            # 表示を詰めてくれる
 #setopt auto_pushd            # cd -[tab]でcdのhistoryを閲覧できる
-setopt noflowcontrol         # disable flow control
-setopt auto_menu             # タブキーの連打で自動的にメニュー補完
-setopt auto_list             # タブキーの連打で自動的にメニュー補完
-setopt share_history         # tmuxなどを使っていてもhistoryを共有
-setopt menu_complete         # Menuで出てくる候補を補完できるようにする
-setopt prompt_subst          # プロンプト表示する度に変数を展開
-setopt cdable_vars           # ディレクトリ補完でuserとかGroupを表示させない
-setopt auto_param_slash      # ディレクトリ名の補完で末尾の / を自動的に付加し、次の補完に備える
-setopt mark_dirs             # ファイル名の展開でディレクトリにマッチした場合 末尾に / を付加
-setopt list_types            # 補完候補一覧でファイルの種別を識別マーク表示 (訳注:ls -F の記号)
-setopt auto_menu             # 補完キー連打で順に補完候補を自動で補完
-setopt auto_param_keys       # カッコの対応などを自動的に補完
-setopt interactive_comments  # コマンドラインでも # 以降をコメントと見なす
-setopt magic_equal_subst     # コマンドラインの引数で --prefix=/usr などの = 以降でも補完できる
-setopt complete_in_word      # 語の途中でもカーソル位置で補完
-setopt always_last_prompt    # カーソル位置は保持したままファイル名一覧を順次その場で表示し、終了時に画面から消す
-setopt print_eight_bit       # 日本語ファイル名等8ビットを通す
-setopt extended_glob         # 拡張グロブで補完(~とか^とか。例えばless *.txt~memo.txt ならmemo.txt 以外の *.txt にマッチ)
-setopt globdots              # 明確なドットの指定なしで.から始まるファイルをマッチ
-setopt auto_cd               # ディレクトリ名を入力するだけでcdできるようにする
-setopt ignoreeof             # Ctrl-Dでシェルからログアウトしない
-setopt no_beep               # BEEPを鳴らさない
-setopt nolistbeep            # no beep sound when complete list displayed
+setopt noflowcontrol          # disable flow control
+setopt auto_menu              # タブキーの連打で自動的にメニュー補完
+setopt auto_list              # タブキーの連打で自動的にメニュー補完
+setopt share_history          # tmuxなどを使っていてもhistoryを共有
+setopt menu_complete          # Menuで出てくる候補を補完できるようにする
+setopt prompt_subst           # プロンプト表示する度に変数を展開
+setopt cdable_vars            # ディレクトリ補完でuserとかGroupを表示させない
+setopt auto_param_slash       # ディレクトリ名の補完で末尾の / を自動的に付加し、次の補完に備える
+setopt mark_dirs              # ファイル名の展開でディレクトリにマッチした場合 末尾に / を付加
+setopt list_types             # 補完候補一覧でファイルの種別を識別マーク表示 (訳注:ls -F の記号)
+setopt auto_menu              # 補完キー連打で順に補完候補を自動で補完
+setopt auto_param_keys        # カッコの対応などを自動的に補完
+setopt interactive_comments   # コマンドラインでも # 以降をコメントと見なす
+setopt magic_equal_subst      # コマンドラインの引数で --prefix=/usr などの = 以降でも補完できる
+unsetopt complete_in_word       # 語の途中でもカーソル位置で補完
+setopt always_last_prompt     # カーソル位置は保持したままファイル名一覧を順次その場で表示し、終了時に画面から消す
+setopt print_eight_bit        # 日本語ファイル名等8ビットを通す
+setopt extended_glob          # 拡張グロブで補完(~とか^とか。例えばless *.txt~memo.txt ならmemo.txt 以外の *.txt にマッチ)
+setopt globdots               # 明確なドットの指定なしで.から始まるファイルをマッチ
+setopt auto_cd                # ディレクトリ名を入力するだけでcdできるようにする
+#setopt ignoreeof              # Ctrl-Dでシェルからログアウトしない
+setopt no_beep                # BEEPを鳴らさない
+setopt nolistbeep             # no beep sound when complete list displayed
 unsetopt beep
 
 
@@ -223,6 +189,7 @@ bindkey -v '^a' beginning-of-line                             # 行頭へ(menuse
 bindkey -v '^b' backward-char                                 # 1文字左へ(menuselectでは補完候補1つ左へ)
 #bindkey -v 'b' backward-word                                  # 1文字右へ(menuselectでは補完候補1つ右へ)
 bindkey -v '^e' end-of-line                                   # 行末へ(menuselectでは補完候補の最後尾へ)
+bindkey -v '^d' delete-char                                   # 行末へ(menuselectでは補完候補の最後尾へ)
 bindkey -v '^f' forward-char                                  # 1文字右へ(menuselectでは補完候補1つ右へ)
 #bindkey -v 'f' forward-word                                  # 1文字右へ(menuselectでは補完候補1つ右へ)
 bindkey -v '^h' backward-delete-char                          # 1文字削除(menuselectでは絞り込みの1文字削除)
@@ -240,6 +207,7 @@ bindkey "^n" history-beginning-search-forward-end  # 後ろだけリバースサ
 #bindkey "^I" list-expand
 
 bindkey -M menuselect "^?" undo                                # 補完候補をbackspaceでキャンセル
+bindkey -M menuselect '^d' undo
 bindkey -M menuselect '^h' backward-delete-char                # 補完候補の文字を削除
 #bindkey -M menuselect '^h' backward-char                      # 補完候補1つ左へ
 #bindkey -M menuselect '^l' forward-char                       # 補完候補1つ右へ
@@ -270,20 +238,6 @@ bindkey -M menuselect '^[[Z' backward-char                     # shift+tabで候
 
 bindkey "^[f" forward-word
 bindkey "^[b" backward-word
-
-### Alias
-alias ll="gls -alh --color=auto"
-alias less='less -r -SX' # lessで見た時にエスケープシーケンスなどを綺麗に取る
-alias gip="egrep -o '([1-2]?[0-9]{0,2}\.){3,3}[1-2]?[0-9]{0,2}'" # grep ip address 
-alias dateyy="date '+%Y%m%d%H%M%S'"
-alias vi='nvim'
-alias vim='nvim'
-alias nvf='nvim -d'
-alias sudo='sudo ' # magic
-alias exit='texit'
-alias sed='gsed'
-alias grep='ggrep'
-alias history='history 0'
 
 xmodmap $HOME/Xmodmap 2> /dev/null
 #xkbcomp -I $HOME/.xkb ~/.xkb/keymap/mykbd $DISPLAY 2> /dev/null
@@ -326,9 +280,6 @@ function timeout_child () {
     ) &
     wait $child
 }
-if [ ! ${TERM_PROGRAM} = "vscode" ] && [ ! ${TERM_PROGRAM} = "tmux" ]; then
-  tmux_session_selector
-fi
 
 precmd() {
   if [ -d .git -a ! -x .git/hooks/pre-commit -a -e .pre-commit-config.yaml ] && which pre-commit >& /dev/null; then
@@ -343,3 +294,38 @@ EOF
     direnv allow
   fi
 }
+#if [ ! ${TERM_PROGRAM} = "vscode" ] && [ ! ${TERM_PROGRAM} = "tmux" ]; then
+#  tmux_session_selector
+#fi
+
+# for tmux
+function _delete_or_exit() {
+    if [[ -n "${BUFFER}" ]]
+    then
+        zle delete-char
+    else
+        local HISTORY_LIMIT=$(tmux show-options -g history-limit | awk '{print $2}')
+        local SESSION=$(tmux display-message -p '#S')
+        local WINDOW=$(tmux display-message -p '#I')
+        local PANE=$(tmux display-message -p '#P')
+        local DATE=$(date +%Y%m%d)
+        local TIME=$(date +%Y%m%d-%H%M%S)
+        local DIR="${HOME}/.tmux/logs/${DATE}"
+        local FILE="${DIR}/${TIME}-${SESSION}-${WINDOW}.${PANE}.log"
+
+        mkdir -p "$DIR"
+        tmux capture-pane -S -$HISTORY_LIMIT
+        tmux show-buffer > "$FILE"
+        tmux display-message "Logging to $FILE"
+        builtin exit
+    fi
+}
+
+# makes C-d to detach tmux
+if [[ -n "$TMUX" ]]
+then
+  setopt ignoreeof
+  zle -N _delete_or_exit
+  bindkey "^D" _delete_or_exit
+fi
+
