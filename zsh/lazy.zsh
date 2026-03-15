@@ -424,3 +424,46 @@ oc() {
   fi
 }
 
+_uv_resolve_python_version() {
+  # 1. カレントディレクトリから上に向かって .python-version を探索
+  local dir="$PWD"
+  while [ "$dir" != "/" ]; do
+    if [ -f "$dir/.python-version" ]; then
+      # 2. 最初の行を読む（例: "3.15" や "3.11"）
+      head -n 1 "$dir/.python-version"
+      return
+    fi
+    dir="$(dirname "$dir")"
+  done
+
+  # 3. 見つからなければ空を返す（＝システム python にフォールバック）
+  echo ""
+}
+
+python() {
+  local ver
+  ver="$(_uv_resolve_python_version)"
+
+  if [ -n "$ver" ]; then
+    # pin がある場合 → uv 経由でそのバージョンを使う
+    uv run --python "$ver" python "$@"
+  else
+    # pin が無い場合 → そのままシステムの python を呼ぶ
+    command python "$@"
+  fi
+}
+
+python3() {
+  local ver
+  ver="$(_uv_resolve_python_version)"
+
+  if [ -n "$ver" ]; then
+    uv run --python "$ver" python "$@"
+  else
+    command python3 "$@"
+  fi
+}
+
+tar() {
+  COPYFILE_DISABLE=1 command tar "$@"
+}

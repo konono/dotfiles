@@ -26,10 +26,11 @@ end
 vim.cmd([[
     augroup InsModeAu
         autocmd!
-        autocmd InsertEnter,CmdwinEnter * set noimdisable
-        autocmd InsertLeave,CmdwinLeave * set imdisable
+        " 挿入モード / Cmdwin に入ったら IME ON
+        autocmd InsertEnter,CmdwinEnter * set iminsert=1
+        " 抜けたら IME OFF
+        autocmd InsertLeave,CmdwinLeave * set iminsert=0
     augroup END
 ]])
-
 -- magic config
 vim.cmd('syntax on')

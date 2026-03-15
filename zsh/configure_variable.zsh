@@ -1,56 +1,147 @@
-###! configure enviroment !###
-export PATH="/opt/homebrew/bin:${PATH}"
-export PATH="/opt/homebrew/sbin:${PATH}"
-export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:${PATH}"
-export PATH="/Applications/CopyQ.app/Contents/MacOS/:${PATH}"
-export PATH="/usr/local/bin:~/.local/bin/platform-tools:${PATH}"
-export PATH="/Users/yyamashi/.codon/bin:${PATH}"
-export PATH="/opt/homebrew/opt/ruby/bin:${PATH}"
-export PATH="/Users/yyamashi/bin:${PATH}"
-export PATH="/opt/homebrew/lib/ruby/gems/3.4.0/bin:$PATH"
-export PATH="/Users/yyamashi/.cargo/bin:$PATH"
-export LANG=en_US.UTF-8
-export EDITOR='vim'
-eval $(gdircolors -b ~/.dirc)
-eval "$(rbenv init -)"
-eval "$(nodenv init -)"
+### ------------------------------------------------------------
+### Environment / Paths (refactored)
+### ------------------------------------------------------------
+
+# Guard (optional): 2重読み込み防止
+[[ -n "${ZSH_ENV_LOADED:-}" ]] && return
 export ZSH_ENV_LOADED="1"
-# TODO: will be delete
-export ssh_cli=yukiy
-export SYSTEMD_LESS=FRXMK
+
+# Locale / Editor
+export LANG="en_US.UTF-8"
+export EDITOR="vim"
+export SHELL="/bin/zsh"
+export CASE_SENSITIVE="true"
+
+# ------------------------------------------------------------
+# Prefixes / Base dirs
+# ------------------------------------------------------------
+# Homebrew prefix (Apple Silicon = /opt/homebrew)
+# Intel Mac でも使うなら、必要に応じて /usr/local に切替
+BREW_PREFIX="/opt/homebrew"
+
+# User-local bins
+LOCAL_BIN="$HOME/.local/bin"
+USER_BIN="$HOME/bin"
+
+# ------------------------------------------------------------
+# PATH management (zsh way)
+# - export PATH=... を連打せず、path 配列で整理
+# - 追加は「前に入れる / 後ろに入れる」を明確に
+# ------------------------------------------------------------
+typeset -U path  # 重複排除（順序は最初に現れたもの優先）
+path=(
+  "$BREW_PREFIX/bin"
+  "$BREW_PREFIX/sbin"
+  "$BREW_PREFIX/opt/coreutils/libexec/gnubin"
+
+  # Apps / Tools
+  "/Applications/CopyQ.app/Contents/MacOS"
+
+  # User bins
+  "/usr/local/bin"            # まだ使ってるなら残す（要らなければ削除）
+  "$LOCAL_BIN"
+  "$USER_BIN"
+
+  # Language toolchains
+  "$HOME/.cargo/bin"
+  "$HOME/.codon/bin"
+
+  # (Android platform-tools) ※元の指定はパスが怪しかったので一般的な置き方に寄せる
+  "$HOME/.local/bin/platform-tools"
+
+  $path
+)
+export PATH
+
+# ------------------------------------------------------------
+# Man/Info paths（必要な人だけ）
+# ※ /usr/local と .linuxbrew は環境次第なので、存在チェック
+# ------------------------------------------------------------
+[[ -d "/usr/local/man" ]] && export MANPATH="/usr/local/man:${MANPATH:-}"
+[[ -d "$HOME/.linuxbrew/share/man" ]] && export MANPATH="$HOME/.linuxbrew/share/man:${MANPATH:-}"
+[[ -d "$HOME/.linuxbrew/share/info" ]] && export INFOPATH="$HOME/.linuxbrew/share/info:${INFOPATH:-}"
+
+# ------------------------------------------------------------
+# dircolors (GNU coreutils) — gdircolors があるときだけ
+# ------------------------------------------------------------
+if (( $+commands[gdircolors] )); then
+  [[ -f "$HOME/.dirc" ]] && eval "$(gdircolors -b "$HOME/.dirc")"
+fi
+
+# ------------------------------------------------------------
+# Ruby / Node version managers（あるときだけ）
+# ------------------------------------------------------------
+if (( $+commands[rbenv] )); then
+  eval "$(rbenv init -)"
+fi
+if (( $+commands[nodenv] )); then
+  eval "$(nodenv init -)"
+fi
+
+# ------------------------------------------------------------
+# FZF / ripgrep
+# ------------------------------------------------------------
 export FZF_DEFAULT_COMMAND='rg --files --hidden --glob "!.git"'
 export FZF_DEFAULT_OPTS='--height 40% --reverse --border'
-export ZPLUG_HOME=/usr/local/opt/zplug
-export MANPATH="/usr/local/man:$MANPATH"
-export MANPATH="$HOME/.linuxbrew/share/man:$MANPATH"
-export INFOPATH="$HOME/.linuxbrew/share/info:$INFOPATH"
-export HISTFILE=${HOME}/.zsh_history # 履歴ファイルの保存先
-export HISTSIZE=10000 # メモリに保存される履歴の件数
-export SAVEHIST=10000000 # 履歴ファイルに保存される履歴の件数
-export ZPLUG_LOG_LOAD_SUCCESS=false
-export ZPLUG_LOG_LOAD_FAILURE=false
-export SHELL='/bin/zsh'
-export VAGRANT_EXPERIMENTAL="typed_triggers"
-export GOPATH=$HOME/go
-export GOBIN=$GOPATH/bin
-export PATH=$PATH:$GOBIN
-export POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=false
-# Ruby complie option
-#export LDFLAGS="-L/opt/homebrew/opt/ruby/lib"
-#export CPPFLAGS="-I/opt/homebrew/opt/ruby/include"
-#export PKG_CONFIG_PATH="/opt/homebrew/opt/ruby/lib/pkgconfig"
-# Podman configuration
-export DOCKER_HOST=unix://$HOME.local/share/containers/podman/machine/qemu/podman.sock
-#export LDFLAGS="-L/usr/local/opt/zlib/lib"
-#export CPPFLAGS="-I/usr/local/opt/zlib/include"
-#export PKG_CONFIG_PATH="/usr/local/opt/zlib/lib/pkgconfig"
-export LDFLAGS="-L/opt/homebrew/opt/readline/lib" # あとから追記したもの
-#export CPPFLAGS="-I/opt/homebrew/opt/readline/include" # あとから追記したもの
-#export PKG_CONFIG_PATH="/opt/homebrew/opt/readline/lib/pkgconfig" # あとから追記したもの
-#export LDFLAGS="-L/usr/local/opt/readline/lib"
-export CPPFLAGS="-I/usr/local/opt/readline/include"
-export PKG_CONFIG_PATH="/usr/local/opt/readline/lib/pkgconfig"
-## Change pipenv to create a virtualenv in project.
-export PIPENV_VENV_IN_PROJECT=1
-CASE_SENSITIVE="true"
 
+# ------------------------------------------------------------
+# History
+# ------------------------------------------------------------
+export HISTFILE="$HOME/.zsh_history"
+export HISTSIZE=10000
+export SAVEHIST=10000000
+
+# ------------------------------------------------------------
+# Go
+# ------------------------------------------------------------
+export GOPATH="$HOME/go"
+export GOBIN="$GOPATH/bin"
+path=("$GOBIN" $path)
+export PATH
+
+# ------------------------------------------------------------
+# Podman / Docker socket（パス間違いがありそうだったので修正）
+# 元: $HOME.local/... は多分 $HOME/.local/... のつもり
+# ------------------------------------------------------------
+export DOCKER_HOST="unix://$HOME/.local/share/containers/podman/machine/qemu/podman.sock"
+
+# ------------------------------------------------------------
+# pipenv
+# ------------------------------------------------------------
+export PIPENV_VENV_IN_PROJECT=1
+
+# ------------------------------------------------------------
+# Vagrant
+# ------------------------------------------------------------
+export VAGRANT_EXPERIMENTAL="typed_triggers"
+
+# ------------------------------------------------------------
+# Powerlevel9k/10k
+# ------------------------------------------------------------
+export POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=false
+
+# ------------------------------------------------------------
+# macOS fork safety workaround（必要な時だけ使うのが基本）
+# 何かobjc forkエラーが出るなら有効化、出ないならコメントアウト推奨
+# ------------------------------------------------------------
+export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+
+
+# ------------------------------------------------------------
+# GCP with Claudeの設定
+# ------------------------------------------------------------
+export GCP_PROJECT_ID=REDACTED_GCP_PROJECT_ID
+export CLAUDE_CODE_USE_VERTEX=1
+export CLOUD_ML_REGION=us-east5
+export ANTHROPIC_VERTEX_PROJECT_ID=$GCP_PROJECT_ID
+
+
+# ------------------------------------------------------------
+# Ruby gems bin（固定バージョンは壊れやすいので、必要なら動的に）
+# 例: gem env で拾う / rbenv の shims に任せる方が安全
+# ------------------------------------------------------------
+# if (( $+commands[ruby] )); then
+#   GEM_BIN="$(ruby -e 'print Gem.user_dir')/bin"
+#   [[ -d "$GEM_BIN" ]] && path=("$GEM_BIN" $path)
+#   export PATH
+# fi

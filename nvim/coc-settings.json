@@ -25,6 +25,7 @@
         }
     },
     "ansibleServer.trace.server": "verbose",
-    "python.jediEnabled": false
+    "python.jediEnabled": false,
+    "snippets.ultisnips.pythonPrompt": false
 }
 

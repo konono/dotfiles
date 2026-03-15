@@ -3,3 +3,5 @@
 *.zwc
 zsh/zfunc/_*
 zsh/sheldon/sheldon.zsh
+nvim/backup
+nvim/swap

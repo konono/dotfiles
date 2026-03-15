@@ -5,9 +5,6 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
-export PATH="/Users/yyamashi/scripts:$PATH"
-fpath=(/Users/yyamashi/.zsh/completions $fpath)
 
 ### ENV
 # zmodload zsh/zprof
@@ -49,7 +46,7 @@ if type "sheldon" > /dev/null 2>&1; then
     unset sheldon_cache sheldon_toml
 fi
 
-# direnv cache 
+# direnv cache
 if type "direnv" > /dev/null 2>&1; then
     direnv_cache="$HOME/.zsh/cache/direnv.zsh"
     if [ ! -e "$direnv_cache" ]; then
@@ -59,13 +56,13 @@ if type "direnv" > /dev/null 2>&1; then
     unset direnv_cache
 fi
 
-if [ -d $HOME/.rye ]; then
-    zsh-defer source "$HOME/.rye/env"
-    unset sheldon_cache sheldon_toml
+# fnm (Fast Node Manager)
+if type "fnm" > /dev/null 2>&1; then
+  eval "$(fnm env)"
 fi
 
-source $ZSHRC_DIR/nonlazy.zsh
-zsh-defer source $ZSHRC_DIR/lazy.zsh
+[[ -f "$ZSHRC_DIR/nonlazy.zsh" ]] && source "$ZSHRC_DIR/nonlazy.zsh"
+[[ -f "$ZSHRC_DIR/lazy.zsh" ]] && zsh-defer source "$ZSHRC_DIR/lazy.zsh"
 zsh-defer unfunction source
 
 if [ $commands[oc] ]; then
@@ -73,11 +70,28 @@ if [ $commands[oc] ]; then
   compdef _oc oc
 fi
 
+### Rust (cargo)
+if [[ -f "$HOME/.cargo/env" ]]; then
+  source "$HOME/.cargo/env"
+fi
+
+### Google Cloud SDK (gcloud)
+# Put SDK somewhere stable (recommended): ~/.local/google-cloud-sdk など
+# SDK path is centralized here:
+GCLOUD_SDK_DIR="$HOME/.local/google-cloud-sdk"
+# もしまだ Downloads にあるなら一旦はこうでもOK:
+# GCLOUD_SDK_DIR="$HOME/Downloads/google-cloud-sdk"
+
+if [[ -f "$GCLOUD_SDK_DIR/path.zsh.inc" ]]; then
+  source "$GCLOUD_SDK_DIR/path.zsh.inc"
+fi
+
+if [[ -f "$GCLOUD_SDK_DIR/completion.zsh.inc" ]]; then
+  source "$GCLOUD_SDK_DIR/completion.zsh.inc"
+fi
 
 # To customize prompt, run `p10k configure` or edit ~/gitrepo/bootstrap/zsh/.p10k.zsh.
 [[ ! -f ~/gitrepo/bootstrap/zsh/.p10k.zsh ]] || source ~/gitrepo/bootstrap/zsh/.p10k.zsh
 
-#if [ ! ${TERM_PROGRAM} = "vscode" ] && [ ! ${TERM_PROGRAM} = "tmux" ]; then
-#  tmux_session_selector
-#fi
-export PATH="/opt/homebrew/opt/libpq/bin:/Users/yyamashi/gitrepo/llama.cpp/build/bin:$PATH"
+
+

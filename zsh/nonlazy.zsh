@@ -116,14 +116,14 @@ zstyle ':completion:*' verbose no
 #zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin
 zstyle ':completion:*:sudo:*' command-path /opt/homebrew/bin/ /opt/homebrew/sbin/ /usr/sbin /usr/bin /sbin /bin
 
-rye_cache="$ZSHRC_DIR/zfunc/_rye"
-if [ ! -e "$rye_cache" ]; then
-  rye self completion -s zsh > $rye_cache
-fi
-unset rye_cache
+#rye_cache="$ZSHRC_DIR/zfunc/_rye"
+#if [ ! -e "$rye_cache" ]; then
+#  rye self completion -s zsh > $rye_cache
+#fi
+#unset rye_cache
 
 fpath=($ZSHRC_DIR/zfunc $fpath)
-fpath=(/opt/vagrant/embedded/gems/gems/vagrant-2.3.7/contrib/zsh $fpath)
+#fpath=(/opt/vagrant/embedded/gems/gems/vagrant-2.3.7/contrib/zsh $fpath)
 compinit
 
 # aws completion
