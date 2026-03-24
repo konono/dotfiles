@@ -441,19 +441,28 @@ _uv_resolve_python_version() {
 }
 
 python() {
+  # venv がアクティブなら素直にそちらを使う
+  if [ -n "$VIRTUAL_ENV" ]; then
+    command python "$@"
+    return
+  fi
+
   local ver
   ver="$(_uv_resolve_python_version)"
 
   if [ -n "$ver" ]; then
-    # pin がある場合 → uv 経由でそのバージョンを使う
     uv run --python "$ver" python "$@"
   else
-    # pin が無い場合 → そのままシステムの python を呼ぶ
     command python "$@"
   fi
 }
 
 python3() {
+  if [ -n "$VIRTUAL_ENV" ]; then
+    command python3 "$@"
+    return
+  fi
+
   local ver
   ver="$(_uv_resolve_python_version)"
 
