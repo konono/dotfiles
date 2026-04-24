@@ -61,10 +61,6 @@ github = "romkatv/powerlevel10k"
 # github = 'zsh-users/zsh-autosuggestions'
 # apply = ['defer']
 
-[plugins.zsh-syntax-highlighting]
-github = 'zsh-users/zsh-syntax-highlighting'
-apply = ['defer']
-
 # [plugins.dotfiles-sync]
 # local = '~/dotfiles/zsh/sync'
 # use = ['*.zsh']
@@ -80,4 +76,8 @@ inline = 'autoload -Uz colors && zsh-defer colors'
 
 [plugins.compinit]
 inline = 'autoload -Uz compinit && zsh-defer compinit'
+
+[plugins.zsh-syntax-highlighting]
+github = 'zsh-users/zsh-syntax-highlighting'
+apply = ['defer']
 

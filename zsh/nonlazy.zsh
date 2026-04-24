@@ -126,6 +126,15 @@ fpath=($ZSHRC_DIR/zfunc $fpath)
 #fpath=(/opt/vagrant/embedded/gems/gems/vagrant-2.3.7/contrib/zsh $fpath)
 compinit
 
+function safe-expand-or-complete() {
+  local saved_rbuffer="$RBUFFER"
+  zle expand-or-complete
+  if [[ -n "$saved_rbuffer" ]]; then
+    RBUFFER="$saved_rbuffer"
+  fi
+}
+zle -N safe-expand-or-complete
+
 # aws completion
 autoload -Uz bashcompinit
 bashcompinit
@@ -193,7 +202,7 @@ bindkey -v '^d' delete-char                                   # 行末へ(menuse
 bindkey -v '^f' forward-char                                  # 1文字右へ(menuselectでは補完候補1つ右へ)
 #bindkey -v 'f' forward-word                                  # 1文字右へ(menuselectでは補完候補1つ右へ)
 bindkey -v '^h' backward-delete-char                          # 1文字削除(menuselectでは絞り込みの1文字削除)
-bindkey -v '^i' expand-or-complete                            # 補完開始
+bindkey -v '^i' safe-expand-or-complete                       # 補完開始(RBUFFER保護付き)
 bindkey -v "^K" kill-line
 bindkey -v '^h' backward-delete-char                          # 1文字削除(menuselectでは絞り込みの1文字削除)
 bindkey -v "^?" backward-delete-char                          # 1文字削除(menuselectでは絞り込みの1文字削除)

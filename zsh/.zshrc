@@ -21,7 +21,7 @@ ZSHRC_DIR=${${(%):-%N}:A:h}
 # source command override technique
 function source {
   ensure_zcompiled $1
-  builtin source $1
+  builtin source "$@"
 }
 function ensure_zcompiled {
   local compiled="$1.zwc"
