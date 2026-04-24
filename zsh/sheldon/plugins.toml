@@ -38,6 +38,9 @@ use = ["shell/completion.zsh", "shell/key-bindings.zsh"]
 github = "zsh-users/zsh-completions"
 apply = ['defer']
 
+[plugins.compinit]
+inline = 'autoload -Uz compinit && zsh-defer compinit'
+
 [plugins.enhancd]
 github = 'b4b4r07/enhancd'
 apply = ['defer']
@@ -73,9 +76,6 @@ github = "romkatv/powerlevel10k"
 
 [plugins.colors]
 inline = 'autoload -Uz colors && zsh-defer colors'
-
-[plugins.compinit]
-inline = 'autoload -Uz compinit && zsh-defer compinit'
 
 [plugins.zsh-syntax-highlighting]
 github = 'zsh-users/zsh-syntax-highlighting'
