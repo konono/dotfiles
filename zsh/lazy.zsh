@@ -3,7 +3,17 @@
 # Profiling option
 #  zmodload zsh/zprof && zprof
 
-source <(kubetui completion zsh)
+autoload -Uz bashcompinit && bashcompinit
+(( $+commands[aws_completer] )) && complete -C aws_completer aws
+
+if (( $+commands[kubetui] )); then
+  _kubetui_cache="$HOME/.zsh/cache/kubetui.zsh"
+  if [[ ! -r "$_kubetui_cache" ]]; then
+    kubetui completion zsh > "$_kubetui_cache"
+  fi
+  source "$_kubetui_cache"
+  unset _kubetui_cache
+fi
 
 function peco-ssh () {
   local selected_host=$(awk '
@@ -475,4 +485,9 @@ python3() {
 
 tar() {
   COPYFILE_DISABLE=1 command tar "$@"
+}
+
+zsh-clear-cache() {
+  rm -f "$HOME/.zsh/cache/"*.zsh "$HOME/.zsh/cache/"*.zsh.zwc
+  echo "ZSH caches cleared. Restart shell to regenerate."
 }

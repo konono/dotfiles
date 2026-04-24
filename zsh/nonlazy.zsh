@@ -30,9 +30,6 @@ zmodload zsh/nearcolor
 [[ ! -f $ZSHRC_DIR/.p10k.zsh ]] || source $ZSHRC_DIR/.p10k.zsh
 # zstyle :prompt:pure:path color '#30acec'
 
-# User configuration
-autoload colors && colors
-
 #入力途中の履歴補完を有効化する
 autoload history-search-end
 zle -N history-beginning-search-backward-end history-search-end
@@ -53,7 +50,7 @@ zstyle ':completion:*' menu select=2 interactive
 ## 補完候補をキャッシュする。
 zstyle ':completion:*' use-cache yes
 zstyle ':completion::complete:*' use-cache true
-mkdir -p $HOME/.zsh/cache
+[[ -d "$HOME/.zsh/cache" ]] || mkdir -p "$HOME/.zsh/cache"
 zstyle ':completion:*' cache-path ~/.zsh/cache
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 zstyle ':completion:*' keep-prefix
@@ -123,8 +120,6 @@ zstyle ':completion:*:sudo:*' command-path /opt/homebrew/bin/ /opt/homebrew/sbin
 #unset rye_cache
 
 fpath=($ZSHRC_DIR/zfunc $fpath)
-#fpath=(/opt/vagrant/embedded/gems/gems/vagrant-2.3.7/contrib/zsh $fpath)
-compinit
 
 function safe-expand-or-complete() {
   local saved_rbuffer="$RBUFFER"
@@ -135,11 +130,6 @@ function safe-expand-or-complete() {
 }
 zle -N safe-expand-or-complete
 
-# aws completion
-autoload -Uz bashcompinit
-bashcompinit
-
-complete -C aws_completer aws
 
 
 # Ctrl-Wでパスの文字列などをスラッシュ単位でdeleteできる
@@ -248,8 +238,6 @@ bindkey -M menuselect '^[[Z' backward-char                     # shift+tabで候
 bindkey "^[f" forward-word
 bindkey "^[b" backward-word
 
-xmodmap $HOME/Xmodmap 2> /dev/null
-#xkbcomp -I $HOME/.xkb ~/.xkb/keymap/mykbd $DISPLAY 2> /dev/null
 
 function tmux_session_selector() {
     PECO=/opt/homebrew/bin/peco
@@ -290,11 +278,12 @@ function timeout_child () {
     wait $child
 }
 
-precmd() {
-  if [ -d .git -a ! -x .git/hooks/pre-commit -a -e .pre-commit-config.yaml ] && which pre-commit >& /dev/null; then
+_auto_setup_hooks() {
+  if [[ -d .git && ! -x .git/hooks/pre-commit && -e .pre-commit-config.yaml ]] \
+     && (( $+commands[pre-commit] )); then
     pre-commit install
   fi
-  if [ -e .venv ] && [ ! -e .envrc ] && which direnv >& /dev/null; then
+  if [[ -e .venv && ! -e .envrc ]] && (( $+commands[direnv] )); then
     cat << "EOF" > .envrc
 if [ -e  .venv/ ]; then
   source .venv/bin/activate
@@ -303,6 +292,8 @@ EOF
     direnv allow
   fi
 }
+chpwd_functions+=(_auto_setup_hooks)
+_auto_setup_hooks
 #if [ ! ${TERM_PROGRAM} = "vscode" ] && [ ! ${TERM_PROGRAM} = "tmux" ]; then
 #  tmux_session_selector
 #fi

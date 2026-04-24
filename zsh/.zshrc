@@ -34,8 +34,14 @@ ensure_zcompiled ~/.zshrc
 source $ZSHRC_DIR/configure_variable.zsh
 source $ZSHRC_DIR/aliases.zsh
 
+# Skip p10k SSH detection (avoids forking `who` on local sessions)
+if [[ -z $SSH_CLIENT && -z $SSH_TTY && -z $SSH_CONNECTION ]]; then
+  typeset -gix P9K_SSH=0
+  typeset -gx _P9K_SSH_TTY=$TTY
+fi
+
 # sheldon cache technique
-if type "sheldon" > /dev/null 2>&1; then
+if (( $+commands[sheldon] )); then
     export SHELDON_CONFIG_DIR="$ZSHRC_DIR/sheldon"
     sheldon_cache="$SHELDON_CONFIG_DIR/sheldon.zsh"
     sheldon_toml="$SHELDON_CONFIG_DIR/plugins.toml"
@@ -47,7 +53,7 @@ if type "sheldon" > /dev/null 2>&1; then
 fi
 
 # direnv cache
-if type "direnv" > /dev/null 2>&1; then
+if (( $+commands[direnv] )); then
     direnv_cache="$HOME/.zsh/cache/direnv.zsh"
     if [ ! -e "$direnv_cache" ]; then
       direnv hook zsh > $direnv_cache
@@ -57,22 +63,27 @@ if type "direnv" > /dev/null 2>&1; then
 fi
 
 # fnm (Fast Node Manager)
-if type "fnm" > /dev/null 2>&1; then
-  eval "$(fnm env)"
+if (( $+commands[fnm] )); then
+  _fnm_cache="$HOME/.zsh/cache/fnm.zsh"
+  if [[ ! -r "$_fnm_cache" ]]; then
+    fnm env > "$_fnm_cache"
+  fi
+  source "$_fnm_cache"
+  unset _fnm_cache
 fi
 
 [[ -f "$ZSHRC_DIR/nonlazy.zsh" ]] && source "$ZSHRC_DIR/nonlazy.zsh"
 [[ -f "$ZSHRC_DIR/lazy.zsh" ]] && zsh-defer source "$ZSHRC_DIR/lazy.zsh"
 zsh-defer unfunction source
 
-if [ $commands[oc] ]; then
-  builtin source <(oc completion zsh)
-  compdef _oc oc
-fi
-
-### Rust (cargo)
-if [[ -f "$HOME/.cargo/env" ]]; then
-  source "$HOME/.cargo/env"
+if (( $+commands[oc] )); then
+  _oc_cache="$HOME/.zsh/cache/oc-completion.zsh"
+  if [[ ! -r "$_oc_cache" ]]; then
+    oc completion zsh > "$_oc_cache"
+  fi
+  zsh-defer source "$_oc_cache"
+  zsh-defer -c 'compdef _oc oc'
+  unset _oc_cache
 fi
 
 ### Google Cloud SDK (gcloud)
@@ -87,7 +98,7 @@ if [[ -f "$GCLOUD_SDK_DIR/path.zsh.inc" ]]; then
 fi
 
 if [[ -f "$GCLOUD_SDK_DIR/completion.zsh.inc" ]]; then
-  source "$GCLOUD_SDK_DIR/completion.zsh.inc"
+  zsh-defer source "$GCLOUD_SDK_DIR/completion.zsh.inc"
 fi
 
 # To customize prompt, run `p10k configure` or edit ~/gitrepo/bootstrap/zsh/.p10k.zsh.
