@@ -202,5 +202,10 @@ typeset -g POWERLEVEL9K_CONFIG_FILE=${${(%):-%x}:a}
 
 typeset -g POWERLEVEL9K_KUBECONTEXT_KUBECTL_COMMAND=oc
 
+# Show kubecontext only when KUBECONFIG is explicitly set (e.g. via direnv)
+function _p9k_prompt_kubecontext_init() {
+  typeset -g "_p9k__segment_cond_${_p9k__prompt_side}[_p9k__segment_index]"='${KUBECONFIG}'
+}
+
 (( ${#p10k_config_opts} )) && setopt ${p10k_config_opts[@]}
 'builtin' 'unset' 'p10k_config_opts'
