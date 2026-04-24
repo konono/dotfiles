@@ -92,6 +92,3 @@ fi
 
 # To customize prompt, run `p10k configure` or edit ~/gitrepo/bootstrap/zsh/.p10k.zsh.
 [[ ! -f ~/gitrepo/bootstrap/zsh/.p10k.zsh ]] || source ~/gitrepo/bootstrap/zsh/.p10k.zsh
-
-
-
