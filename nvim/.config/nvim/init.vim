@@ -1,5 +1,5 @@
 "common config {{{
-let g:python3_host_prog = "$HOME/.rye/shims/python3"
+let g:python3_host_prog = "$HOME/.local/bin/python3"
 
 "encode識別
 filetype off
