@@ -298,34 +298,67 @@ _auto_setup_hooks
 #  tmux_session_selector
 #fi
 
-# for tmux
+## for tmux
+#function _delete_or_exit() {
+#    if [[ -n "${BUFFER}" ]]
+#    then
+#        zle delete-char
+#    else
+#        local HISTORY_LIMIT=$(tmux show-options -g history-limit | awk '{print $2}')
+#        local SESSION=$(tmux display-message -p '#S')
+#        local WINDOW=$(tmux display-message -p '#I')
+#        local PANE=$(tmux display-message -p '#P')
+#        local DATE=$(date +%Y%m%d)
+#        local TIME=$(date +%Y%m%d-%H%M%S)
+#        local DIR="${HOME}/.tmux/logs/${DATE}"
+#        local FILE="${DIR}/${TIME}-${SESSION}-${WINDOW}.${PANE}.log"
+#
+#        mkdir -p "$DIR"
+#        tmux capture-pane -S -$HISTORY_LIMIT
+#        tmux show-buffer > "$FILE"
+#        tmux display-message "Logging to $FILE"
+#        builtin exit
+#    fi
+#}
+#
+## makes C-d to detach tmux
+#if [[ -n "$TMUX" ]]
+#then
+#  setopt ignoreeof
+#  zle -N _delete_or_exit
+#  bindkey "^D" _delete_or_exit
+#fi
+
 function _delete_or_exit() {
     if [[ -n "${BUFFER}" ]]
     then
         zle delete-char
     else
-        local HISTORY_LIMIT=$(tmux show-options -g history-limit | awk '{print $2}')
-        local SESSION=$(tmux display-message -p '#S')
-        local WINDOW=$(tmux display-message -p '#I')
-        local PANE=$(tmux display-message -p '#P')
+        local SESSION="${ZELLIJ_SESSION_NAME:-zellij}"
         local DATE=$(date +%Y%m%d)
         local TIME=$(date +%Y%m%d-%H%M%S)
-        local DIR="${HOME}/.tmux/logs/${DATE}"
-        local FILE="${DIR}/${TIME}-${SESSION}-${WINDOW}.${PANE}.log"
+        local DIR="${HOME}/.zellij/logs/${DATE}"
+        local FILE="${DIR}/${TIME}-${SESSION}.log"
 
         mkdir -p "$DIR"
-        tmux capture-pane -S -$HISTORY_LIMIT
-        tmux show-buffer > "$FILE"
-        tmux display-message "Logging to $FILE"
+
+        if [[ -n "$ZELLIJ" ]]
+        then
+            zellij action dump-screen --full --path "$FILE"
+            # 色や装飾も残したい場合:
+            # zellij action dump-screen --full --ansi --path "$FILE"
+
+            zellij action write 27  # ESC相当。不要なら削除OK
+            print -r "Logging to $FILE"
+        fi
+
         builtin exit
     fi
 }
 
-# makes C-d to detach tmux
-if [[ -n "$TMUX" ]]
+if [[ -n "$ZELLIJ" ]]
 then
   setopt ignoreeof
   zle -N _delete_or_exit
   bindkey "^D" _delete_or_exit
 fi
-
