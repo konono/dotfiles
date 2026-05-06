@@ -95,4 +95,18 @@ keymap("i", "jj", "<c-[>", opts)
 -- ビジュアルモード時vで行末まで選択
 keymap("v", "v", "$h", opts)
 
-
+-- Ctrl+D 2回押しで :q! (ZQ相当)
+local ctrl_d_timer = nil
+vim.keymap.set('n', '<C-d>', function()
+  if ctrl_d_timer then
+    ctrl_d_timer:stop()
+    ctrl_d_timer = nil
+    vim.cmd('q!')
+  else
+    vim.cmd('normal! \x04')
+    ctrl_d_timer = vim.uv.new_timer()
+    ctrl_d_timer:start(200, 0, vim.schedule_wrap(function()
+      ctrl_d_timer = nil
+    end))
+  end
+end, opts)
