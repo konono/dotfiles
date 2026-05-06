@@ -1,0 +1,9 @@
+[mgr]
+prepend_keymap = [
+  { on = "<C-u>", run = "arrow -50%",  desc = "Half page up" },
+  { on = "<C-d>", run = "arrow 50%",   desc = "Half page down" },
+  { on = "<C-b>", run = "arrow -100%", desc = "Page up" },
+  { on = "<C-f>", run = "arrow 100%",  desc = "Page down" },
+  { on = "J",     run = "arrow 5",     desc = "Move down 5 lines" },
+  { on = "K",     run = "arrow -5",    desc = "Move up 5 lines" },
+]

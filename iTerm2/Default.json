@@ -326,7 +326,7 @@
     "Alpha Component" : 0.5,
     "Green Component" : 0.25479039549827576
   },
-  "Scrollback Lines" : 2000,
+  "Scrollback Lines" : 1000,
   "Send Code When Idle" : false,
   "Close Sessions On End" : true,
   "Terminal Type" : "xterm-256color",

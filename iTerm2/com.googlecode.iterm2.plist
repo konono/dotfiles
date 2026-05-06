@@ -1740,7 +1740,7 @@ The script should do this: \(ai.prompt)</string>
 			<key>Non-ASCII Anti Aliased</key>
 			<true/>
 			<key>Normal Font</key>
-			<string>MesloLGS-NF-Regular 20</string>
+			<string>Menlo-Regular 11</string>
 			<key>Option Key Sends</key>
 			<integer>0</integer>
 			<key>Prompt Before Closing 2</key>
@@ -2090,7 +2090,7 @@ The script should do this: \(ai.prompt)</string>
 			<key>Guid</key>
 			<string>C9CECB69-D6A3-4C22-8797-FF6087928636</string>
 			<key>Has Hotkey</key>
-			<true/>
+			<false/>
 			<key>Hide After Opening</key>
 			<false/>
 			<key>Horizontal Spacing</key>
@@ -2201,7 +2201,7 @@ The script should do this: \(ai.prompt)</string>
 			<key>Non-ASCII Anti Aliased</key>
 			<true/>
 			<key>Normal Font</key>
-			<string>MesloLGS-NF-Regular 18</string>
+			<string>Menlo-Regular 11</string>
 			<key>Open Toolbelt</key>
 			<false/>
 			<key>Option Key Sends</key>
