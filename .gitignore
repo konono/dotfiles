@@ -6,3 +6,4 @@ zsh/sheldon/sheldon.zsh
 nvim/backup
 nvim/swap
 mise/config.toml.lock
+zellij/plugins/*.wasm

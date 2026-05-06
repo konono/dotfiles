@@ -1,0 +1,43 @@
+layout {
+  default_tab_template {
+    children
+    pane size=1 borderless=true {
+      plugin location="file:~/.config/zellij/plugins/zjstatus.wasm" {
+        format_left  "{mode}#[fg=#aaaaaa,bg=default] {session} {tabs}"
+        format_right "{command_host}{command_loadavg}{datetime} "
+        format_center ""
+        format_space ""
+
+        mode_locked  ""
+        mode_normal  "#[fg=#ffffff,bg=#005fff,bold] NORMAL #[bg=default] "
+        mode_tmux    "#[fg=#ffffff,bg=#ff8700,bold] PREFIX #[bg=default] "
+        mode_resize  "#[fg=#ffffff,bg=#ff0000,bold] RESIZE #[bg=default] "
+        mode_tab     "#[fg=#ffffff,bg=#00af00,bold] TAB #[bg=default] "
+        mode_move    "#[fg=#ffffff,bg=#af00ff,bold] MOVE #[bg=default] "
+
+        tab_normal              "#[fg=#888888,bg=default] {name} "
+        tab_active              "#[fg=#ffffff,bg=#005fff,bold] {name} #[bg=default]"
+        tab_normal_sync         "#[fg=#888888,bg=default] {name} (sync) "
+        tab_active_sync         "#[fg=#ffffff,bg=#005fff,bold] {name} (sync) #[bg=default]"
+        tab_normal_fullscreen   "#[fg=#888888,bg=default] {name} [] "
+        tab_active_fullscreen   "#[fg=#ffffff,bg=#005fff,bold] {name} [] #[bg=default]"
+
+        command_host_command  "hostname -s"
+        command_host_format   "#[fg=#888888,bg=default]{stdout} | "
+        command_host_interval "60"
+        command_host_rendermode "static"
+
+        command_loadavg_command  "sysctl -n vm.loadavg"
+        command_loadavg_format   "#[fg=#888888,bg=default]LA: {stdout} | "
+        command_loadavg_interval "5"
+        command_loadavg_rendermode "static"
+
+        datetime_format "%m/%d %H:%M:%S"
+        datetime_timezone "Asia/Tokyo"
+
+        border_enabled "false"
+        hide_frame_for_single_pane "true"
+      }
+    }
+  }
+}
