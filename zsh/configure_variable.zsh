@@ -73,25 +73,6 @@ if (( $+commands[gdircolors] )) && [[ -f "$HOME/.dirc" ]]; then
   unset _gdircolors_cache
 fi
 
-# ------------------------------------------------------------
-# Ruby / Node version managers（あるときだけ）
-# ------------------------------------------------------------
-if (( $+commands[rbenv] )); then
-  _rbenv_cache="$HOME/.zsh/cache/rbenv.zsh"
-  if [[ ! -r "$_rbenv_cache" ]]; then
-    rbenv init - > "$_rbenv_cache"
-  fi
-  builtin source "$_rbenv_cache"
-  unset _rbenv_cache
-fi
-if (( $+commands[nodenv] )); then
-  _nodenv_cache="$HOME/.zsh/cache/nodenv.zsh"
-  if [[ ! -r "$_nodenv_cache" ]]; then
-    nodenv init - > "$_nodenv_cache"
-  fi
-  builtin source "$_nodenv_cache"
-  unset _nodenv_cache
-fi
 
 # ------------------------------------------------------------
 # FZF / ripgrep

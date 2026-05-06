@@ -62,14 +62,9 @@ if (( $+commands[direnv] )); then
     unset direnv_cache
 fi
 
-# fnm (Fast Node Manager)
-if (( $+commands[fnm] )); then
-  _fnm_cache="$HOME/.zsh/cache/fnm.zsh"
-  if [[ ! -r "$_fnm_cache" ]]; then
-    fnm env > "$_fnm_cache"
-  fi
-  source "$_fnm_cache"
-  unset _fnm_cache
+# mise (dev tool version manager)
+if (( $+commands[mise] )); then
+  eval "$(mise activate zsh --shims)"
 fi
 
 [[ -f "$ZSHRC_DIR/nonlazy.zsh" ]] && source "$ZSHRC_DIR/nonlazy.zsh"

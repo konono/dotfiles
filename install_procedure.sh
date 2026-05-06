@@ -29,12 +29,13 @@ echo "Installing Homebrew packages..."
 brew bundle install --file="$DOTFILES_DIR/Brewfile"
 
 # ------------------------------------------------------------
-# 4. uv (Python package manager)
+# 4. mise (tool version manager)
 # ------------------------------------------------------------
-if ! command -v uv &>/dev/null; then
-  echo "Installing uv..."
-  curl -LsSf https://astral.sh/uv/install.sh | sh
-fi
+echo "Setting up mise..."
+mkdir -p ~/.config/mise
+ln -sf "$DOTFILES_DIR/mise/config.toml" ~/.config/mise/config.toml
+eval "$(mise activate bash --shims)"
+mise install --yes
 
 # ------------------------------------------------------------
 # 5. Symlinks
@@ -48,6 +49,7 @@ ln -sf "$DOTFILES_DIR/dirc/.dirc" ~/.dirc
 mkdir -p ~/.config
 ln -sfn "$DOTFILES_DIR/nvim" ~/.config/nvim
 ln -sfn "$DOTFILES_DIR/peco/.config/peco" ~/.config/peco
+ln -sfn "$DOTFILES_DIR/yazi" ~/.config/yazi
 ln -sfn "$DOTFILES_DIR/vim" ~/.vim
 
 mkdir -p ~/.config/copyq
@@ -56,28 +58,35 @@ for f in "$DOTFILES_DIR"/copyq/.config/copyq/*.ini; do
 done
 
 # ------------------------------------------------------------
-# 6. Python + pynvim
+# 6. Python + pynvim (for neovim)
 # ------------------------------------------------------------
 echo "Setting up Python for neovim..."
-export PATH="$HOME/.local/bin:$PATH"
-uv python install
-uv pip install --system pynvim
+uv venv ~/.config/nvim/venv --python "$(mise where python)/bin/python3"
+uv pip install --python ~/.config/nvim/venv/bin/python pynvim
 
 # ------------------------------------------------------------
-# 7. sheldon plugins
+# 7. uv tools (Python CLI tools)
+# ------------------------------------------------------------
+echo "Installing Python CLI tools via uv..."
+uv tool install awscli
+uv tool install awxkit "setuptools<70"
+uv tool install workday-calc
+
+# ------------------------------------------------------------
+# 8. sheldon plugins
 # ------------------------------------------------------------
 echo "Setting up sheldon plugins..."
 SHELDON_CONFIG_DIR="$DOTFILES_DIR/zsh/sheldon" sheldon lock
 
 # ------------------------------------------------------------
-# 8. iTerm2
+# 9. iTerm2
 # ------------------------------------------------------------
 echo "Configuring iTerm2..."
 defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool true
 defaults write com.googlecode.iterm2 PrefsCustomFolder -string "$DOTFILES_DIR/iTerm2"
 
 # ------------------------------------------------------------
-# 9. Cache directories
+# 10. Cache directories
 # ------------------------------------------------------------
 mkdir -p ~/.zsh/cache
 

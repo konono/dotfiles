@@ -15,6 +15,16 @@ if (( $+commands[kubetui] )); then
   unset _kubetui_cache
 fi
 
+function y() {
+  local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+  command yazi "$@" --cwd-file="$tmp"
+  IFS= read -r -d '' cwd < "$tmp"
+  if [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+    builtin cd -- "$cwd"
+  fi
+  rm -f -- "$tmp"
+}
+
 function peco-ssh () {
   local selected_host=$(awk '
   tolower($1)=="host" {
@@ -434,54 +444,6 @@ oc() {
   fi
 }
 
-_uv_resolve_python_version() {
-  # 1. カレントディレクトリから上に向かって .python-version を探索
-  local dir="$PWD"
-  while [ "$dir" != "/" ]; do
-    if [ -f "$dir/.python-version" ]; then
-      # 2. 最初の行を読む（例: "3.15" や "3.11"）
-      head -n 1 "$dir/.python-version"
-      return
-    fi
-    dir="$(dirname "$dir")"
-  done
-
-  # 3. 見つからなければ空を返す（＝システム python にフォールバック）
-  echo ""
-}
-
-python() {
-  # venv がアクティブなら素直にそちらを使う
-  if [ -n "$VIRTUAL_ENV" ]; then
-    command python "$@"
-    return
-  fi
-
-  local ver
-  ver="$(_uv_resolve_python_version)"
-
-  if [ -n "$ver" ]; then
-    uv run --python "$ver" python "$@"
-  else
-    command python "$@"
-  fi
-}
-
-python3() {
-  if [ -n "$VIRTUAL_ENV" ]; then
-    command python3 "$@"
-    return
-  fi
-
-  local ver
-  ver="$(_uv_resolve_python_version)"
-
-  if [ -n "$ver" ]; then
-    uv run --python "$ver" python "$@"
-  else
-    command python3 "$@"
-  fi
-}
 
 tar() {
   COPYFILE_DISABLE=1 command tar "$@"

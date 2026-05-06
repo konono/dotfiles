@@ -1,0 +1,18 @@
+[tools]
+python = "3.14"
+uv = "latest"
+aube = "latest"
+rust = "stable"
+node = "24"
+bun = "latest"
+direnv = "latest"
+sheldon = "latest"
+"cargo:pwkit" = "0.1.0"
+
+[settings]
+npm.package_manager = "auto"
+python.uv_venv_auto = "source"
+lockfile = true
+
+[env]
+UV_PYTHON = { value = "{{ tools.python.path }}", tools = true }
