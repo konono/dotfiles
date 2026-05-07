@@ -1,0 +1,10 @@
+#!/bin/sh
+if [ "$(uname)" = "Darwin" ]; then
+  exec pbpaste
+elif [ -n "$WAYLAND_DISPLAY" ]; then
+  exec wl-paste
+elif [ -n "$DISPLAY" ]; then
+  exec xclip -selection clipboard -o
+else
+  echo ""
+fi

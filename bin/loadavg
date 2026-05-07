@@ -1,0 +1,6 @@
+#!/bin/sh
+if [ -f /proc/loadavg ]; then
+  cut -d' ' -f-3 /proc/loadavg
+else
+  sysctl -n vm.loadavg
+fi
