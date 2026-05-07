@@ -244,7 +244,7 @@ echo "=== Step 9: Install Python CLI tools via uv ==="
 
 if command -v uv &>/dev/null; then
   uv tool install awscli || true
-  uv tool install awxkit "setuptools<70" || true
+  uv tool install awxkit --with "setuptools<70" || true
   uv tool install workday-calc || true
   echo "Python CLI tools installed."
 else

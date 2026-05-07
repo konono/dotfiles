@@ -83,7 +83,7 @@ uv pip install --python ~/.config/nvim/venv/bin/python pynvim
 # ------------------------------------------------------------
 echo "Installing Python CLI tools via uv..."
 uv tool install awscli
-uv tool install awxkit "setuptools<70"
+uv tool install awxkit --with "setuptools<70"
 uv tool install workday-calc
 
 # ------------------------------------------------------------
