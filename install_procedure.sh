@@ -54,6 +54,7 @@ ln -sfn "$DOTFILES_DIR/nvim" ~/.config/nvim
 ln -sfn "$DOTFILES_DIR/peco/.config/peco" ~/.config/peco
 ln -sfn "$DOTFILES_DIR/yazi" ~/.config/yazi
 ln -sfn "$DOTFILES_DIR/zellij" ~/.config/zellij
+ln -sfn "$DOTFILES_DIR/ghostty" ~/Library/Application\ Support/com.mitchellh.ghostty
 
 # copyq (individual files)
 mkdir -p ~/.config/copyq

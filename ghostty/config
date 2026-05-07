@@ -1,0 +1,25 @@
+app-notifications = false
+shell-integration-features = ssh-env,ssh-terminfo
+
+# Window
+initial-window = false
+background-opacity = 0.9
+
+# Cursor
+cursor-color = #c8c8c8
+cursor-opacity = 1
+
+# Font
+font-family = "Monaco"
+font-size = 18
+font-thicken = true
+bold-is-bright = false
+adjust-cell-height = 10%
+adjust-cell-width = 0
+
+# Quick Terminal
+keybind = global:alt+space=toggle_quick_terminal
+quick-terminal-position = top
+quick-terminal-screen = mouse
+quick-terminal-size = 100%,100%
+quick-terminal-animation-duration = 0.15
