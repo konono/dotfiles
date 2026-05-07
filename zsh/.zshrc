@@ -40,6 +40,11 @@ if [[ -z $SSH_CLIENT && -z $SSH_TTY && -z $SSH_CONNECTION ]]; then
   typeset -gx _P9K_SSH_TTY=$TTY
 fi
 
+# mise (dev tool version manager) — must be before sheldon/direnv so shims are in PATH
+if (( $+commands[mise] )); then
+  eval "$(mise activate zsh --shims)"
+fi
+
 # sheldon cache technique
 if (( $+commands[sheldon] )); then
     export SHELDON_CONFIG_DIR="$ZSHRC_DIR/sheldon"
@@ -60,11 +65,6 @@ if (( $+commands[direnv] )); then
     fi
     source "$direnv_cache"
     unset direnv_cache
-fi
-
-# mise (dev tool version manager)
-if (( $+commands[mise] )); then
-  eval "$(mise activate zsh --shims)"
 fi
 
 [[ -f "$ZSHRC_DIR/nonlazy.zsh" ]] && source "$ZSHRC_DIR/nonlazy.zsh"

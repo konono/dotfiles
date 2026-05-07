@@ -273,22 +273,12 @@ echo "=== Step 11: Create cache directories ==="
 mkdir -p ~/.zsh/cache
 
 # ------------------------------------------------------------
-# 12. Default shell
+# 12. Note about default shell
 # ------------------------------------------------------------
 echo ""
-echo "=== Step 12: Set default shell to zsh ==="
-
-ZSH_PATH=$(which zsh)
 if [ "$(basename "$SHELL")" != "zsh" ]; then
-  if grep -q "$ZSH_PATH" /etc/shells; then
-    chsh -s "$ZSH_PATH"
-    echo "Default shell changed to $ZSH_PATH"
-  else
-    echo "WARNING: $ZSH_PATH is not in /etc/shells."
-    echo "  Run: sudo sh -c 'echo $ZSH_PATH >> /etc/shells' && chsh -s $ZSH_PATH"
-  fi
-else
-  echo "Default shell is already zsh."
+  echo "NOTE: Your default shell is not zsh."
+  echo "  To change it: chsh -s \$(which zsh)"
 fi
 
 echo ""
