@@ -40,8 +40,6 @@ keymap("n", 's', '"_s', opts)
 keymap("n", '<S-k>', ':cN<CR>zz', opts)
 keymap("n", '<S-j>', ':cnext<CR>zz', opts)
 
--- タブ作成のショートカット
-keymap("n", "<C-n>", ":tabnew<CR>", opts)
 
 -- 検索で次にすすんだ時に画面を中央にでてくるようにする
 keymap("n", "n", "nzz", opts)
