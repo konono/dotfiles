@@ -8,6 +8,8 @@ bun = "latest"
 direnv = "latest"
 sheldon = "latest"
 zellij = "latest"
+neovim = "stable"
+"github-cli" = "latest"
 "cargo:pwkit" = "0.1.0"
 
 [settings]
