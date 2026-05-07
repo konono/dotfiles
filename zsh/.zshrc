@@ -25,7 +25,8 @@ function source {
 }
 function ensure_zcompiled {
   local compiled="$1.zwc"
-  if [[ ! -r "$compiled" || "$1" -nt "$compiled" ]]; then
+  local real="${1:A}"
+  if [[ ! -r "$compiled" || "$real" -nt "$compiled" ]]; then
     echo "\033[1;36mCompiling\033[m $1"
     zcompile $1
   fi
