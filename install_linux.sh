@@ -63,7 +63,7 @@ install_packages() {
 # Map logical package names to distro-specific names
 get_bootstrap_packages() {
   local pkg_manager="$1"
-  local packages=(git zsh curl tar unzip tmux htop tree)
+  local packages=(git zsh curl tar unzip tmux tree)
 
   case "$pkg_manager" in
     apt)
