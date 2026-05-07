@@ -129,10 +129,73 @@ fi
 echo "mise version: $(mise --version)"
 
 # ------------------------------------------------------------
-# 3. Clone dotfiles
+# 3. GitHub CLI
 # ------------------------------------------------------------
 echo ""
-echo "=== Step 3: Clone dotfiles ==="
+echo "=== Step 3: Install GitHub CLI ==="
+
+if ! command -v gh &>/dev/null; then
+  echo "Installing GitHub CLI..."
+  case "$PKG_MANAGER" in
+    apt)
+      curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+        | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+      echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+        | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+      sudo apt-get update -qq && sudo apt-get install -y gh
+      ;;
+    dnf)
+      sudo dnf install -y 'dnf-command(config-manager)'
+      sudo dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+      sudo dnf install -y gh
+      ;;
+    yum)
+      sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+      sudo yum install -y gh
+      ;;
+    *)
+      echo "WARNING: Cannot auto-install gh for $PKG_MANAGER."
+      echo "  See https://github.com/cli/cli/blob/trunk/docs/install_linux.md"
+      ;;
+  esac
+fi
+
+if command -v gh &>/dev/null; then
+  echo "gh version: $(gh --version | head -1)"
+fi
+
+# ------------------------------------------------------------
+# 4. GitHub CLI authentication
+# ------------------------------------------------------------
+echo ""
+echo "=== Step 4: Authenticate GitHub CLI ==="
+
+if command -v gh &>/dev/null; then
+  if ! gh auth status &>/dev/null; then
+    echo "gh is not authenticated. Running gh auth login..."
+    gh auth login
+  fi
+  export GITHUB_TOKEN="$(gh auth token 2>/dev/null)"
+  echo "GITHUB_TOKEN exported from gh."
+else
+  if [ -z "${GITHUB_TOKEN:-}" ]; then
+    echo "WARNING: gh is not available and GITHUB_TOKEN is not set."
+    echo "  mise will hit GitHub API rate limits without a token."
+    echo "  Create a token at https://github.com/settings/tokens (no scopes required)"
+    echo "  Then run: GITHUB_TOKEN=ghp_xxx bash install_linux.sh"
+    echo ""
+    read -p "Continue without token? (y/N): " answer
+    if [[ ! "$answer" =~ ^[Yy]$ ]]; then
+      exit 1
+    fi
+  fi
+fi
+
+# ------------------------------------------------------------
+# 5. Clone dotfiles
+# ------------------------------------------------------------
+echo ""
+echo "=== Step 5: Clone dotfiles ==="
 
 if [ -d "$DOTFILES_DIR" ]; then
   echo "dotfiles already exists at $DOTFILES_DIR, pulling latest..."
@@ -145,23 +208,10 @@ fi
 echo "dotfiles directory: $DOTFILES_DIR"
 
 # ------------------------------------------------------------
-# 4. mise setup
+# 6. mise setup
 # ------------------------------------------------------------
 echo ""
-echo "=== Step 4: Setup mise ==="
-
-if [ -z "${GITHUB_TOKEN:-}" ] && [ -z "${MISE_GITHUB_TOKEN:-}" ]; then
-  echo ""
-  echo "WARNING: GITHUB_TOKEN is not set."
-  echo "  mise downloads tools from GitHub Releases and will hit rate limits without a token."
-  echo "  Create a token at https://github.com/settings/tokens (no scopes required)"
-  echo "  Then run: GITHUB_TOKEN=ghp_xxx bash install_linux.sh"
-  echo ""
-  read -p "Continue without token? (y/N): " answer
-  if [[ ! "$answer" =~ ^[Yy]$ ]]; then
-    exit 1
-  fi
-fi
+echo "=== Step 6: Setup mise ==="
 
 mkdir -p ~/.config/mise
 ln -sf "$DOTFILES_DIR/mise/config.toml" ~/.config/mise/config.toml
@@ -169,10 +219,10 @@ eval "$(mise activate bash --shims)"
 mise install --yes
 
 # ------------------------------------------------------------
-# 5. Symlinks
+# 7. Symlinks
 # ------------------------------------------------------------
 echo ""
-echo "=== Step 5: Create symlinks ==="
+echo "=== Step 7: Create symlinks ==="
 
 mkdir -p ~/.config
 
@@ -191,10 +241,10 @@ ln -sfn "$DOTFILES_DIR/zellij" ~/.config/zellij
 echo "Symlinks created."
 
 # ------------------------------------------------------------
-# 6. bin/ wrapper scripts
+# 8. bin/ wrapper scripts
 # ------------------------------------------------------------
 echo ""
-echo "=== Step 6: Install wrapper scripts ==="
+echo "=== Step 8: Install wrapper scripts ==="
 
 mkdir -p ~/.local/bin
 for f in "$DOTFILES_DIR"/bin/*; do
@@ -203,10 +253,10 @@ done
 echo "Wrapper scripts linked to ~/.local/bin/"
 
 # ------------------------------------------------------------
-# 7. Zellij plugins
+# 9. Zellij plugins
 # ------------------------------------------------------------
 echo ""
-echo "=== Step 7: Download zellij plugins ==="
+echo "=== Step 9: Download zellij plugins ==="
 
 mkdir -p ~/.config/zellij/plugins
 if [[ ! -f ~/.config/zellij/plugins/zjstatus.wasm ]]; then
@@ -223,10 +273,10 @@ else
 fi
 
 # ------------------------------------------------------------
-# 8. Python + pynvim
+# 10. Python + pynvim
 # ------------------------------------------------------------
 echo ""
-echo "=== Step 8: Setup Python for neovim ==="
+echo "=== Step 10: Setup Python for neovim ==="
 
 if command -v uv &>/dev/null && command -v mise &>/dev/null; then
   uv venv ~/.config/nvim/venv --python "$(mise where python)/bin/python3"
@@ -237,10 +287,10 @@ else
 fi
 
 # ------------------------------------------------------------
-# 9. uv tools
+# 11. uv tools
 # ------------------------------------------------------------
 echo ""
-echo "=== Step 9: Install Python CLI tools via uv ==="
+echo "=== Step 11: Install Python CLI tools via uv ==="
 
 if command -v uv &>/dev/null; then
   uv tool install awscli || true
@@ -252,10 +302,10 @@ else
 fi
 
 # ------------------------------------------------------------
-# 10. Sheldon plugins
+# 12. Sheldon plugins
 # ------------------------------------------------------------
 echo ""
-echo "=== Step 10: Setup sheldon plugins ==="
+echo "=== Step 12: Setup sheldon plugins ==="
 
 if command -v sheldon &>/dev/null; then
   SHELDON_CONFIG_DIR="$DOTFILES_DIR/zsh/sheldon" sheldon lock
@@ -265,15 +315,15 @@ else
 fi
 
 # ------------------------------------------------------------
-# 11. Cache directories
+# 13. Cache directories
 # ------------------------------------------------------------
 echo ""
-echo "=== Step 11: Create cache directories ==="
+echo "=== Step 13: Create cache directories ==="
 
 mkdir -p ~/.zsh/cache
 
 # ------------------------------------------------------------
-# 12. Note about default shell
+# 14. Note about default shell
 # ------------------------------------------------------------
 echo ""
 if [ "$(basename "$SHELL")" != "zsh" ]; then

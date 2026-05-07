@@ -29,7 +29,17 @@ echo "Installing Homebrew packages..."
 brew bundle install --file="$DOTFILES_DIR/Brewfile"
 
 # ------------------------------------------------------------
-# 4. mise (tool version manager)
+# 4. GitHub CLI authentication
+# ------------------------------------------------------------
+echo "Setting up GitHub CLI..."
+if ! gh auth status &>/dev/null; then
+  echo "gh is not authenticated. Running gh auth login..."
+  gh auth login
+fi
+export GITHUB_TOKEN="$(gh auth token 2>/dev/null)"
+
+# ------------------------------------------------------------
+# 5. mise (tool version manager)
 # ------------------------------------------------------------
 echo "Setting up mise..."
 mkdir -p ~/.config/mise
@@ -38,7 +48,7 @@ eval "$(mise activate bash --shims)"
 mise install --yes
 
 # ------------------------------------------------------------
-# 5. Symlinks
+# 6. Symlinks
 # ------------------------------------------------------------
 echo "Creating symlinks..."
 mkdir -p ~/.config
@@ -63,7 +73,7 @@ for f in "$DOTFILES_DIR"/copyq/.config/copyq/*.ini; do
 done
 
 # ------------------------------------------------------------
-# 6. zellij plugins
+# 7. zellij plugins
 # ------------------------------------------------------------
 echo "Downloading zellij plugins..."
 mkdir -p ~/.config/zellij/plugins
@@ -73,14 +83,14 @@ if [[ ! -f ~/.config/zellij/plugins/zjstatus.wasm ]]; then
 fi
 
 # ------------------------------------------------------------
-# 7. Python + pynvim (for neovim)
+# 8. Python + pynvim (for neovim)
 # ------------------------------------------------------------
 echo "Setting up Python for neovim..."
 uv venv ~/.config/nvim/venv --python "$(mise where python)/bin/python3"
 uv pip install --python ~/.config/nvim/venv/bin/python pynvim
 
 # ------------------------------------------------------------
-# 8. uv tools (Python CLI tools)
+# 9. uv tools (Python CLI tools)
 # ------------------------------------------------------------
 echo "Installing Python CLI tools via uv..."
 uv tool install awscli
@@ -88,20 +98,20 @@ uv tool install awxkit --with "setuptools<70"
 uv tool install workday-calc
 
 # ------------------------------------------------------------
-# 9. sheldon plugins
+# 10. sheldon plugins
 # ------------------------------------------------------------
 echo "Setting up sheldon plugins..."
 SHELDON_CONFIG_DIR="$DOTFILES_DIR/zsh/sheldon" sheldon lock
 
 # ------------------------------------------------------------
-# 10. iTerm2
+# 11. iTerm2
 # ------------------------------------------------------------
 echo "Configuring iTerm2..."
 defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool true
 defaults write com.googlecode.iterm2 PrefsCustomFolder -string "$DOTFILES_DIR/iTerm2"
 
 # ------------------------------------------------------------
-# 11. Cache directories
+# 12. Cache directories
 # ------------------------------------------------------------
 mkdir -p ~/.zsh/cache
 
