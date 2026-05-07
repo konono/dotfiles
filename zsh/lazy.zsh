@@ -44,6 +44,13 @@ function peco-ssh () {
 zle -N peco-ssh
 
 function grvim(){
+  local _grep_cmd
+  if [[ "$(uname -s)" == "Darwin" ]]; then
+    _grep_cmd=ggrep
+  else
+    _grep_cmd=grep
+  fi
+
   # Init vars
   file=""
   line=""
@@ -85,9 +92,9 @@ function grvim(){
   REGEX_PATTERN=$(get_nth 1 "${ARGS[@]}")
 
   if [ ${#IGNORE_PATTERN[@]} -eq 0 ]; then
-    res="`ggrep --color=auto -rI -n "$REGEX_PATTERN" |peco`"
+    res="`$_grep_cmd --color=auto -rI -n "$REGEX_PATTERN" |peco`"
   else
-    res="`ggrep --color=auto -rI -n "$REGEX_PATTERN" |ggrep -v ${IGNORE_PATTERN[@]} |peco`"
+    res="`$_grep_cmd --color=auto -rI -n "$REGEX_PATTERN" |$_grep_cmd -v ${IGNORE_PATTERN[@]} |peco`"
   fi
   file="$(awk -F: -v t="$res" 'BEGIN{split(t, a); print a[1]}')"
   line="$(awk -F: -v t="$res" 'BEGIN{split(t, a); print a[2]}')"

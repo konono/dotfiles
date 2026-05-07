@@ -13,13 +13,16 @@ export SHELL="/bin/zsh"
 export CASE_SENSITIVE="true"
 
 # ------------------------------------------------------------
+# Platform detection
+# ------------------------------------------------------------
+case "$(uname -s)" in
+  Darwin) _is_macos=1 ;;
+  *)      _is_macos=0 ;;
+esac
+
+# ------------------------------------------------------------
 # Prefixes / Base dirs
 # ------------------------------------------------------------
-# Homebrew prefix (Apple Silicon = /opt/homebrew)
-# Intel Mac でも使うなら、必要に応じて /usr/local に切替
-BREW_PREFIX="/opt/homebrew"
-
-# User-local bins
 LOCAL_BIN="$HOME/.local/bin"
 USER_BIN="$HOME/bin"
 
@@ -29,28 +32,28 @@ USER_BIN="$HOME/bin"
 # - 追加は「前に入れる / 後ろに入れる」を明確に
 # ------------------------------------------------------------
 typeset -U path  # 重複排除（順序は最初に現れたもの優先）
-path=(
-  "$BREW_PREFIX/bin"
-  "$BREW_PREFIX/sbin"
-  "$BREW_PREFIX/opt/coreutils/libexec/gnubin"
 
-  # Apps / Tools
-  "/Applications/CopyQ.app/Contents/MacOS"
-
-  # User bins
-  "/usr/local/bin"            # まだ使ってるなら残す（要らなければ削除）
-  "$LOCAL_BIN"
-  "$USER_BIN"
-
-  # Language toolchains
-  "$HOME/.cargo/bin"
-  "$HOME/.codon/bin"
-
-  # (Android platform-tools) ※元の指定はパスが怪しかったので一般的な置き方に寄せる
-  "$HOME/.local/bin/platform-tools"
-
-  $path
-)
+if (( _is_macos )); then
+  BREW_PREFIX="/opt/homebrew"
+  path=(
+    "$BREW_PREFIX/bin"
+    "$BREW_PREFIX/sbin"
+    "$BREW_PREFIX/opt/coreutils/libexec/gnubin"
+    "/Applications/CopyQ.app/Contents/MacOS"
+    "/usr/local/bin"
+    "$LOCAL_BIN"
+    "$USER_BIN"
+    "$HOME/.local/bin/platform-tools"
+    $path
+  )
+else
+  path=(
+    "/usr/local/bin"
+    "$LOCAL_BIN"
+    "$USER_BIN"
+    $path
+  )
+fi
 export PATH
 
 # ------------------------------------------------------------
@@ -62,16 +65,24 @@ export PATH
 [[ -d "$HOME/.linuxbrew/share/info" ]] && export INFOPATH="$HOME/.linuxbrew/share/info:${INFOPATH:-}"
 
 # ------------------------------------------------------------
-# dircolors (GNU coreutils) — gdircolors があるときだけ
+# dircolors (GNU coreutils)
+# macOS: gdircolors (coreutils via Homebrew)
+# Linux: dircolors (native)
 # ------------------------------------------------------------
-if (( $+commands[gdircolors] )) && [[ -f "$HOME/.dirc" ]]; then
-  _gdircolors_cache="$HOME/.zsh/cache/gdircolors.zsh"
-  if [[ ! -r "$_gdircolors_cache" || "$HOME/.dirc" -nt "$_gdircolors_cache" ]]; then
-    gdircolors -b "$HOME/.dirc" > "$_gdircolors_cache"
-  fi
-  builtin source "$_gdircolors_cache"
-  unset _gdircolors_cache
+if (( _is_macos )); then
+  _dircolors_cmd=gdircolors
+else
+  _dircolors_cmd=dircolors
 fi
+if (( $+commands[$_dircolors_cmd] )) && [[ -f "$HOME/.dirc" ]]; then
+  _dircolors_cache="$HOME/.zsh/cache/dircolors.zsh"
+  if [[ ! -r "$_dircolors_cache" || "$HOME/.dirc" -nt "$_dircolors_cache" ]]; then
+    $_dircolors_cmd -b "$HOME/.dirc" > "$_dircolors_cache"
+  fi
+  builtin source "$_dircolors_cache"
+  unset _dircolors_cache
+fi
+unset _dircolors_cmd
 
 
 # ------------------------------------------------------------
@@ -96,10 +107,15 @@ path=("$GOBIN" $path)
 export PATH
 
 # ------------------------------------------------------------
-# Podman / Docker socket（パス間違いがありそうだったので修正）
-# 元: $HOME.local/... は多分 $HOME/.local/... のつもり
+# Podman / Docker socket
 # ------------------------------------------------------------
-export DOCKER_HOST="unix://$HOME/.local/share/containers/podman/machine/qemu/podman.sock"
+if (( $+commands[podman] )); then
+  if (( _is_macos )); then
+    export DOCKER_HOST="unix://$HOME/.local/share/containers/podman/machine/qemu/podman.sock"
+  elif [[ -S "/run/user/$(id -u)/podman/podman.sock" ]]; then
+    export DOCKER_HOST="unix:///run/user/$(id -u)/podman/podman.sock"
+  fi
+fi
 
 # ------------------------------------------------------------
 # pipenv
@@ -117,10 +133,11 @@ export VAGRANT_EXPERIMENTAL="typed_triggers"
 export POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=false
 
 # ------------------------------------------------------------
-# macOS fork safety workaround（必要な時だけ使うのが基本）
-# 何かobjc forkエラーが出るなら有効化、出ないならコメントアウト推奨
+# macOS fork safety workaround
 # ------------------------------------------------------------
-export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+if (( _is_macos )); then
+  export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+fi
 
 
 # ------------------------------------------------------------

@@ -110,8 +110,11 @@ zstyle ':completion:*' completer _complete _ignored _approximate _prefix _match
 zstyle ':completion:*' verbose no
 
 ## sudo の時にコマンドを探すパス
-#zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin
-zstyle ':completion:*:sudo:*' command-path /opt/homebrew/bin/ /opt/homebrew/sbin/ /usr/sbin /usr/bin /sbin /bin
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  zstyle ':completion:*:sudo:*' command-path /opt/homebrew/bin/ /opt/homebrew/sbin/ /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin
+else
+  zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin /sbin /bin
+fi
 
 #rye_cache="$ZSHRC_DIR/zfunc/_rye"
 #if [ ! -e "$rye_cache" ]; then
@@ -240,7 +243,7 @@ bindkey "^[b" backward-word
 
 
 function tmux_session_selector() {
-    PECO=/opt/homebrew/bin/peco
+    PECO=${commands[peco]:-peco}
     if [[ ! $TMUX  && $- == *l* ]]; then
       ID=`tmux list-sessions`
       if [[ -z "$ID" ]]; then
