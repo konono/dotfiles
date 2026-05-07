@@ -141,6 +141,13 @@ fi
 
 
 # ------------------------------------------------------------
+# GitHub token for mise / API access
+# ------------------------------------------------------------
+if [[ -z "${GITHUB_TOKEN:-}" ]] && (( $+commands[gh] )); then
+  GITHUB_TOKEN="$(gh auth token 2>/dev/null)" && export GITHUB_TOKEN
+fi
+
+# ------------------------------------------------------------
 # GCP with Claudeの設定
 # ------------------------------------------------------------
 export GCP_PROJECT_ID=REDACTED_GCP_PROJECT_ID
