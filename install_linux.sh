@@ -150,6 +150,19 @@ echo "dotfiles directory: $DOTFILES_DIR"
 echo ""
 echo "=== Step 4: Setup mise ==="
 
+if [ -z "${GITHUB_TOKEN:-}" ] && [ -z "${MISE_GITHUB_TOKEN:-}" ]; then
+  echo ""
+  echo "WARNING: GITHUB_TOKEN is not set."
+  echo "  mise downloads tools from GitHub Releases and will hit rate limits without a token."
+  echo "  Create a token at https://github.com/settings/tokens (no scopes required)"
+  echo "  Then run: GITHUB_TOKEN=ghp_xxx bash install_linux.sh"
+  echo ""
+  read -p "Continue without token? (y/N): " answer
+  if [[ ! "$answer" =~ ^[Yy]$ ]]; then
+    exit 1
+  fi
+fi
+
 mkdir -p ~/.config/mise
 ln -sf "$DOTFILES_DIR/mise/config.toml" ~/.config/mise/config.toml
 eval "$(mise activate bash --shims)"
