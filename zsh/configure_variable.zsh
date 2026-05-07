@@ -148,12 +148,16 @@ if [[ -z "${GITHUB_TOKEN:-}" ]] && (( $+commands[gh] )); then
 fi
 
 # ------------------------------------------------------------
-# GCP with Claudeの設定
+# GCP with Claudeの設定 (.env から読み込み)
 # ------------------------------------------------------------
-export GCP_PROJECT_ID=REDACTED_GCP_PROJECT_ID
-export CLAUDE_CODE_USE_VERTEX=1
-export CLOUD_ML_REGION=us-east5
-export ANTHROPIC_VERTEX_PROJECT_ID=$GCP_PROJECT_ID
+_dotfiles_env="${ZSHRC_DIR:h}/.env"
+if [[ -f "$_dotfiles_env" ]]; then
+  source "$_dotfiles_env"
+  export GCP_PROJECT_ID CLAUDE_CODE_USE_VERTEX CLOUD_ML_REGION ANTHROPIC_VERTEX_PROJECT_ID
+  export CLAUDE_CODE_USE_VERTEX="${CLAUDE_CODE_USE_VERTEX:-1}"
+  export ANTHROPIC_VERTEX_PROJECT_ID="${ANTHROPIC_VERTEX_PROJECT_ID:-$GCP_PROJECT_ID}"
+fi
+unset _dotfiles_env
 
 
 # ------------------------------------------------------------

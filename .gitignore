@@ -7,3 +7,4 @@ nvim/backup
 nvim/swap
 mise/config.toml.lock
 zellij/plugins/*.wasm
+.env
