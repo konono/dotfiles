@@ -1,5 +1,3 @@
-// ===== 完全ミニマル設定 =====
-
 show_startup_tips false
 skip_first_run true
 
@@ -14,8 +12,16 @@ session_serialization true
 pane_viewport_serialization true
 
 copy_command "pbcopy"
-scrollback_editor "nvim"
-//default_layout "tmux-status"
+scrollback_editor "/opt/homebrew/bin/nvim"
+//default_layout "zellaude"
+
+load_plugins {
+  "file:~/.config/zellij/plugins/zellij-attention.wasm" {
+    enabled "true"
+    waiting_icon "⌛"
+    completed_icon "✅"
+  }
+}
 
 // ===== キーバインド =====
 keybinds clear-defaults=true {
@@ -51,6 +57,9 @@ keybinds clear-defaults=true {
     // tab移動: tab mode
     bind "n" { GoToNextTab; SwitchToMode "tab"; }
     bind "p" { GoToPreviousTab; SwitchToMode "tab"; }
+
+    // close pane
+    bind "x" { CloseFocus; SwitchToMode "locked"; }
 
     // zoom
     bind "z" { ToggleFocusFullscreen; SwitchToMode "locked"; }
@@ -98,6 +107,7 @@ keybinds clear-defaults=true {
   tab {
     bind "n" { GoToNextTab; }
     bind "p" { GoToPreviousTab; }
+    bind "x" { CloseTab; SwitchToMode "locked"; }
     bind "Esc"   { SwitchToMode "locked"; }
     bind "Enter" { SwitchToMode "locked"; }
   }
