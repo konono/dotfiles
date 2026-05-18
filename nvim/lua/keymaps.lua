@@ -64,7 +64,7 @@ keymap("v", "<C-e>", 'y:%s/<C-r>"//g', opts)
 
 -- ctrl-gでカーソル下のキーワードをvimgrep
 -- keymap("n", "<C-f>", "':vimgrep ;\\<' . expand('<cword>') . '\\>; % \\| cw <CR>'", expr_opts)
-keymap("v", "<C-f>", 'y:vimgrep <C-r>" % | cw<CR>', opts)
+-- keymap("v", "<C-f>", 'y:vimgrep <C-r>" % | cw<CR>', opts)
 
 -- 
 keymap("t", "<ESC><ESC>", "<C-\\><C-n>", term_opts)
