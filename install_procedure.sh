@@ -73,7 +73,23 @@ for f in "$DOTFILES_DIR"/copyq/.config/copyq/*.ini; do
 done
 
 # ------------------------------------------------------------
-# 7. zellij plugins
+# 7. sleepwatcher (sleep/wake hooks)
+# ------------------------------------------------------------
+echo "Setting up sleepwatcher..."
+ln -sf "$DOTFILES_DIR/sleepwatcher/.sleep" ~/.sleep
+ln -sf "$DOTFILES_DIR/sleepwatcher/.wakeup" ~/.wakeup
+chmod +x ~/.sleep ~/.wakeup
+brew services start sleepwatcher
+
+# ------------------------------------------------------------
+# 8. macOS defaults
+# ------------------------------------------------------------
+echo "Configuring macOS defaults..."
+defaults write com.apple.finder CreateDesktop false
+killall Finder 2>/dev/null || true
+
+# ------------------------------------------------------------
+# 9. zellij plugins
 # ------------------------------------------------------------
 echo "Downloading zellij plugins..."
 mkdir -p ~/.config/zellij/plugins
@@ -83,14 +99,14 @@ if [[ ! -f ~/.config/zellij/plugins/zjstatus.wasm ]]; then
 fi
 
 # ------------------------------------------------------------
-# 8. Python + pynvim (for neovim)
+# 10. Python + pynvim (for neovim)
 # ------------------------------------------------------------
 echo "Setting up Python for neovim..."
 uv venv ~/.config/nvim/venv --python "$(mise where python)/bin/python3"
 uv pip install --python ~/.config/nvim/venv/bin/python pynvim
 
 # ------------------------------------------------------------
-# 9. uv tools (Python CLI tools)
+# 11. uv tools (Python CLI tools)
 # ------------------------------------------------------------
 echo "Installing Python CLI tools via uv..."
 uv tool install awscli
@@ -98,20 +114,20 @@ uv tool install awxkit --with "setuptools<70"
 uv tool install workday-calc
 
 # ------------------------------------------------------------
-# 10. sheldon plugins
+# 12. sheldon plugins
 # ------------------------------------------------------------
 echo "Setting up sheldon plugins..."
 SHELDON_CONFIG_DIR="$DOTFILES_DIR/zsh/sheldon" sheldon lock
 
 # ------------------------------------------------------------
-# 11. iTerm2
+# 13. iTerm2
 # ------------------------------------------------------------
 echo "Configuring iTerm2..."
 defaults write com.googlecode.iterm2 LoadPrefsFromCustomFolder -bool true
 defaults write com.googlecode.iterm2 PrefsCustomFolder -string "$DOTFILES_DIR/iTerm2"
 
 # ------------------------------------------------------------
-# 12. Cache directories
+# 14. Cache directories
 # ------------------------------------------------------------
 mkdir -p ~/.zsh/cache
 
