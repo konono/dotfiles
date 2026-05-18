@@ -2,9 +2,9 @@
 ### Environment / Paths (refactored)
 ### ------------------------------------------------------------
 
-# Guard (optional): 2重読み込み防止
+# Guard: 2重読み込み防止
 [[ -n "${ZSH_ENV_LOADED:-}" ]] && return
-export ZSH_ENV_LOADED="1"
+ZSH_ENV_LOADED="1"
 
 # Locale / Editor
 export LANG="en_US.UTF-8"
@@ -25,17 +25,20 @@ esac
 # ------------------------------------------------------------
 LOCAL_BIN="$HOME/.local/bin"
 USER_BIN="$HOME/bin"
+export GOPATH="$HOME/go"
+export GOBIN="$GOPATH/bin"
 
 # ------------------------------------------------------------
 # PATH management (zsh way)
 # - export PATH=... を連打せず、path 配列で整理
 # - 追加は「前に入れる / 後ろに入れる」を明確に
 # ------------------------------------------------------------
-typeset -U path  # 重複排除（順序は最初に現れたもの優先）
+typeset -gU path  # 重複排除（-g: source関数経由でもグローバルに適用）
 
 if (( _is_macos )); then
   BREW_PREFIX="/opt/homebrew"
   path=(
+    "$GOBIN"
     "$BREW_PREFIX/bin"
     "$BREW_PREFIX/sbin"
     "$BREW_PREFIX/opt/coreutils/libexec/gnubin"
@@ -48,6 +51,7 @@ if (( _is_macos )); then
   )
 else
   path=(
+    "$GOBIN"
     "/usr/local/bin"
     "$LOCAL_BIN"
     "$USER_BIN"
@@ -98,13 +102,7 @@ export HISTFILE="$HOME/.zsh_history"
 export HISTSIZE=10000
 export SAVEHIST=10000000
 
-# ------------------------------------------------------------
-# Go
-# ------------------------------------------------------------
-export GOPATH="$HOME/go"
-export GOBIN="$GOPATH/bin"
-path=("$GOBIN" $path)
-export PATH
+# Go: GOPATH/GOBIN は上部の "Prefixes / Base dirs" で定義済み
 
 # ------------------------------------------------------------
 # Podman / Docker socket
