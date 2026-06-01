@@ -44,6 +44,7 @@ export GITHUB_TOKEN="$(gh auth token 2>/dev/null)"
 echo "Setting up mise..."
 mkdir -p ~/.config/mise
 ln -sf "$DOTFILES_DIR/mise/config.toml" ~/.config/mise/config.toml
+ln -sf "$DOTFILES_DIR/mise/settings.toml" ~/.config/mise/settings.toml
 eval "$(mise activate bash --shims)"
 mise install --yes
 

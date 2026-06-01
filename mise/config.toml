@@ -1,22 +1,25 @@
 [tools]
-python = "3.14"
 uv = "latest"
 aube = "latest"
-ruff = "latest"
 rust = "stable"
 node = "24"
 bun = "latest"
+go = "latest"
 direnv = "latest"
 sheldon = "latest"
 zellij = "latest"
 neovim = "stable"
-"github-cli" = "latest"
+github-cli = "latest"
+cargo-binstall = "latest"
 "cargo:pwkit" = "0.1.0"
+"cargo:silicon" = "0.5.2"
+docker-compose = "latest"
+delta = "latest"
+glow = "latest"
+oc = "4.21.16"
+opencode = "latest"
+"pipx:ruff" = "latest"
 
 [settings]
 npm.package_manager = "auto"
-python.uv_venv_auto = "source"
 lockfile = true
-
-[env]
-UV_PYTHON = { value = "{{ tools.python.path }}", tools = true }
