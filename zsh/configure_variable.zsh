@@ -109,7 +109,7 @@ export SAVEHIST=10000000
 # ------------------------------------------------------------
 if (( $+commands[podman] )); then
   if (( _is_macos )); then
-    export DOCKER_HOST="unix://$HOME/.local/share/containers/podman/machine/qemu/podman.sock"
+    export DOCKER_HOST="unix://$HOME/.local/share/containers/podman/machine/podman.sock"
   elif [[ -S "/run/user/$(id -u)/podman/podman.sock" ]]; then
     export DOCKER_HOST="unix:///run/user/$(id -u)/podman/podman.sock"
   fi
