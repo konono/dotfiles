@@ -407,6 +407,61 @@ Options:
         split_k8s_yaml ./save_manifests/
     fi
 }
+function oc-login() {
+  local token="" server="" kubeconfig="${PWD}/.kube/config"
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --token|--token=*)
+        [[ "$1" == *=* ]] && token="${1#*=}" || { token="$2"; shift; }; shift ;;
+      --server|--server=*)
+        [[ "$1" == *=* ]] && server="${1#*=}" || { server="$2"; shift; }; shift ;;
+      --kubeconfig|--kubeconfig=*)
+        [[ "$1" == *=* ]] && kubeconfig="${1#*=}" || { kubeconfig="$2"; shift; }; shift ;;
+      -h|--help)
+        cat <<'EOF'
+Usage: oc-login --token <TOKEN> --server <SERVER> [--kubeconfig <PATH>]
+
+カレントディレクトリに .kube/config を作成して oc login します。
+~/.kube/config を上書きしません。
+
+ログイン後、同じディレクトリで oc コマンドを使うには:
+  export KUBECONFIG="$PWD/.kube/config"
+
+Options:
+  --token       OpenShift API トークン (必須)
+  --server      OpenShift API サーバー URL (必須)
+  --kubeconfig  kubeconfig のパス (default: $PWD/.kube/config)
+  -h, --help    このヘルプを表示
+EOF
+        return 0 ;;
+      *) echo "不明なオプション: $1"; return 1 ;;
+    esac
+  done
+
+  [[ -z "$token" ]]  && { echo "❌ --token が必要です"; return 1; }
+  [[ -z "$server" ]] && { echo "❌ --server が必要です"; return 1; }
+
+  mkdir -p "$(dirname "$kubeconfig")"
+  KUBECONFIG="$kubeconfig" command oc login --token="$token" --server="$server"
+
+  local envrc="${PWD}/.envrc"
+  local line="export KUBECONFIG=\"\${PWD}/.kube/config\""
+  if [[ ! -f "$envrc" ]]; then
+    echo "$line" > "$envrc"
+    echo "📝 .envrc を作成しました"
+  elif ! grep -qF 'KUBECONFIG' "$envrc"; then
+    echo "$line" >> "$envrc"
+    echo "📝 .envrc に KUBECONFIG を追記しました"
+  fi
+  if (( $+commands[direnv] )); then
+    direnv allow "$envrc"
+  fi
+
+  echo ""
+  echo "📁 kubeconfig: $kubeconfig"
+}
+
 function oc-ns() {
   # 1. oc から Namespace の一覧を取得し、peco で選択
   #    --no-headers: ヘッダー行を省略
