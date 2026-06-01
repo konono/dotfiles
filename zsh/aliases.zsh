@@ -24,3 +24,13 @@ alias gpip='`which python3` -m pip'
 alias certbot='certbot --config-dir ./config --work-dir ./work --logs-dir ./logs'
 alias mkfile='install -D /dev/null'
 alias z='~/.config/zellij/kono_develop/zellij/target/dev-opt/zellij'
+
+sil() {
+  local input="$1"; shift
+  local base="${input:t:r}"
+  silicon "$input" \
+    --background "#00000000" --no-window-controls --no-line-number \
+    --pad-horiz 0 --pad-vert 0 \
+    --shadow-blur-radius 0 --shadow-offset-x 0 --shadow-offset-y 0 \
+    --window-title "${input:t}" -o "${base}.png" "$@"
+}
