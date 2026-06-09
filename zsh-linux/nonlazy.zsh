@@ -21,6 +21,7 @@ export GOBIN=$GOPATH/bin
 export PATH=$PATH:$GOBIN
 export POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=false
 export PIPENV_VENV_IN_PROJECT=1
+export PODMAN_COMPOSE_WARNING_LOGS=false
 
 # Colors can be changed by using zstyle with a pattern of the form :prompt:pure:$color_name and style color. The color names, their default, and what part they affect are:
 #
