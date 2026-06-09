@@ -19,9 +19,6 @@ vim.g.maplocalleader = " "
 --   command_mode = 'c',
 
 -- Normal --
--- ansible shortcut
-keymap("n", '<c-p>', ":set ft=yaml.ansible", opts)
-
 -- Split window
 keymap("n", "T", ":new<CR>", opts)
 keymap("n", "t", ":vnew<CR>", opts)
