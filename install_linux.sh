@@ -228,6 +228,7 @@ mkdir -p ~/.config
 
 # Home directory
 ln -sf "$DOTFILES_DIR/zsh/.zshrc" ~/.zshrc
+ln -sf "$DOTFILES_DIR/zsh/.zlogout" ~/.zlogout
 ln -sf "$DOTFILES_DIR/tmux/linux_server/.tmux.conf" ~/.tmux.conf
 ln -sf "$DOTFILES_DIR/dirc/.dirc" ~/.dirc
 ln -sfn "$DOTFILES_DIR/vim" ~/.vim
