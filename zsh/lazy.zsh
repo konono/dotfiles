@@ -301,12 +301,18 @@ _write_individual_yaml() {
 # 関数をエクスポート（他のスクリプトからも使用可能にする）
 # .zshrc に追加する場合は以下の行をコメントアウト
 # split_k8s_yaml "$@"
-oc-all () {
+oc-all() {
     local verbose_mode=false
     local all_namespaces=false
     local is_save=false
     local namespace_arg=""
-    local -a exclude_list=("packagemanifests.packages.operators.coreos.com" "clusterserviceversions.operators.coreos.com" "events" "events.events.k8s.io" "pods.metrics.k8s.io")
+    local -a exclude_list=(
+        "packagemanifests.packages.operators.coreos.com"
+        "clusterserviceversions.operators.coreos.com"
+        "events"
+        "events.events.k8s.io"
+        "pods.metrics.k8s.io"
+    )
 
     local help_message=$'
 Usage: oc-all [options]
@@ -314,58 +320,30 @@ Options:
   -v, --verbose        Show all resources including excluded ones
   -A, --all            Query across all namespaces
   -n, --namespace NS   Specify a namespace (default is current context)
+  --save               Save output YAMLs to ./save_manifests directory
   --help               Show this help message
-  save                 Save output YAMLs to ./save directory
 '
 
-    # 最後の引数が "save" の場合
-    if [[ "${@[-1]}" == "save" ]]; then
-        is_save=true
-        set -- "${(@)@[1,-2]}"
-    fi
-
-    # パース
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -v|--verbose)
-                verbose_mode=true
-                shift ;;
-            -A|--all)
-                all_namespaces=true
-                shift ;;
+            -v|--verbose)    verbose_mode=true; shift ;;
+            -A|--all)        all_namespaces=true; shift ;;
+            --save|save)     is_save=true; shift ;;
             -n|--namespace)
-                if [[ -z "$2" ]]; then
-                    echo "Error: --namespace requires a value"
-                    echo "$help_message"
-                    return 1
-                fi
-                namespace_arg="$2"
-                shift 2 ;;
-            --help)
-                echo "$help_message"
-                return 0 ;;
-            save)
-                # 既に処理済みなので無視
-                shift ;;
-            -*)
-                echo "Error: Unknown option: $1"
-                echo "$help_message"
-                return 1 ;;
-            *)
-                echo "Error: Unexpected argument: $1"
-                echo "$help_message"
-                return 1 ;;
+                [[ -z "$2" ]] && { echo "Error: --namespace requires a value"; echo "$help_message"; return 1; }
+                namespace_arg="$2"; shift 2 ;;
+            --help)          echo "$help_message"; return 0 ;;
+            -*)              echo "Error: Unknown option: $1"; echo "$help_message"; return 1 ;;
+            *)               echo "Error: Unexpected argument: $1"; echo "$help_message"; return 1 ;;
         esac
     done
 
-    # namespace の自動補完
     if [[ -z "$namespace_arg" && "$all_namespaces" != true ]]; then
         namespace_arg=$(kubectl config view --minify -o 'jsonpath={..namespace}')
         [[ -z "$namespace_arg" ]] && namespace_arg="default"
     fi
 
-    local ns_flag
-    local ns_file_label
+    local ns_flag ns_file_label
     if [[ "$all_namespaces" == true ]]; then
         ns_flag="--all-namespaces"
         ns_file_label="all"
@@ -374,38 +352,44 @@ Options:
         ns_file_label="$namespace_arg"
     fi
 
-    local GREEN="$(tput bold; tput setaf 2)"
-    local RESET="$(tput sgr0)"
-    local exclude_str="${exclude_list[*]}"
+    local green=$'\e[1;32m' reset=$'\e[0m'
 
-    kubectl api-resources --namespaced=true --verbs=list -o name | xargs -n1 -P4 -I{} bash -c '
-        resource="$1"; ns_flag="$2"; verbose="$3"; excludes="$4"; green="$5"; reset="$6"; is_save="$7"; ns_file_label="$8"
+    kubectl api-resources --namespaced=true --verbs=list -o name \
+      | xargs -n1 -P4 -I{} bash -c '
+            resource="$1"; ns_flag="$2"; verbose="$3"; excludes="$4"
+            is_save="$5"; ns_file_label="$6"; green="$7"; reset="$8"
 
-        for excl in $excludes; do
-            if [[ "$verbose" != "true" && "$resource" == "$excl" ]]; then
-                exit 0
+            for excl in $excludes; do
+                [[ "$verbose" != "true" && "$resource" == "$excl" ]] && exit 0
+            done
+
+            output=$(kubectl get "$resource" $ns_flag --show-kind --ignore-not-found 2>/dev/null)
+
+            if [[ -n "$output" && "$output" != "No resources found"* ]]; then
+                echo -e "\n${green}### $resource ###${reset}"
+                echo "$output"
+                if [[ "$is_save" == "true" ]]; then
+                    mkdir -p ./save_manifests/"$resource"
+                    kubectl get "$resource" $ns_flag --ignore-not-found \
+                      -o jsonpath="{range .items[*]}{.metadata.namespace}{\" \"}{.metadata.name}{\"\n\"}{end}" \
+                      2>/dev/null | while read -r obj_ns obj_name; do
+                        [[ -z "$obj_name" ]] && continue
+                        if [[ -n "$obj_ns" ]]; then
+                            fname="${obj_ns}_${obj_name}.yaml"
+                            kubectl get "$resource" "$obj_name" -n "$obj_ns" -o yaml \
+                              > "./save_manifests/$resource/$fname" 2>/dev/null
+                        else
+                            fname="${obj_name}.yaml"
+                            kubectl get "$resource" "$obj_name" $ns_flag -o yaml \
+                              > "./save_manifests/$resource/$fname" 2>/dev/null
+                        fi
+                        echo "  saved: $resource/$fname"
+                    done
+                fi
             fi
-        done
+        ' _ {} "$ns_flag" "$verbose_mode" "${exclude_list[*]}" \
+              "$is_save" "$ns_file_label" "$green" "$reset"
 
-        output=$(kubectl get "$resource" $ns_flag --show-kind --ignore-not-found 2>/dev/null)
-
-        if [[ -n "$output" && "$output" != "No resources found"* ]]; then
-            echo -e "\n${green}### $resource ###${reset}"
-            echo "$output"
-
-            if [[ "$is_save" == "true" ]]; then
-                echo "saving..."
-                mkdir -p ./save_manifests/"$resource"
-                kubectl get "$resource" $ns_flag --ignore-not-found -o yaml > "./save_manifests/$resource/${ns_file_label}.yaml"
-            fi
-        fi
-    ' _ {} "$ns_flag" "$verbose_mode" "$exclude_str" "$GREEN" "$RESET" "$is_save" "$ns_file_label"
-
-    echo -e "$RESET"
-
-    if [[ "$is_save" == "true" ]]; then
-        split_k8s_yaml ./save_manifests/
-    fi
 }
 function oc-login() {
   local token="" server="" kubeconfig="${PWD}/.kube/config"
@@ -463,18 +447,13 @@ EOF
 }
 
 function oc-ns() {
-  # 1. oc から Namespace の一覧を取得し、peco で選択
-  #    --no-headers: ヘッダー行を省略
-  #    -o custom-columns=:metadata.name: Namespace 名だけを出力
   local ns
-  ns=$(oc get namespace --no-headers -o custom-columns=:metadata.name | peco)
+  ns=$(oc get namespace --no-headers -o custom-columns=:metadata.name | peco) || return 1
 
-  # 2. 選択結果が空でなければ、現在のコンテキストの Namespace を切り替え
   if [[ -n "$ns" ]]; then
     oc config set-context --current --namespace="$ns" >/dev/null
     echo "🔄 Namespace を '$ns' に切り替えました"
   else
-    # peco で何も選択せずに Ctrl-C や Esc した場合など
     echo "⚠️ Namespace が選択されませんでした"
     return 1
   fi
@@ -489,7 +468,7 @@ function oc-ns() {
 # zle     -N   fzf-history-widget
 # bindkey '^R' fzf-history-widget
 kubectl() {
-  if [ "$1" = "get" ]; then
+  if [[ "$1" == "get" ]]; then
     shift
     command kubectl get --show-kind "$@"
   else
@@ -498,7 +477,7 @@ kubectl() {
 }
 
 oc() {
-  if [ "$1" = "get" ]; then
+  if [[ "$1" == "get" ]]; then
     shift
     command oc get --show-kind "$@"
   else
