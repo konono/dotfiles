@@ -25,6 +25,21 @@ alias certbot='certbot --config-dir ./config --work-dir ./work --logs-dir ./logs
 alias mkfile='install -D /dev/null'
 alias z='~/.config/zellij/kono_develop/zellij/target/dev-opt/zellij'
 
+gh-token-refresh() {
+  if ! (( $+commands[gh] )); then
+    echo "gh is not installed." >&2
+    return 1
+  fi
+  if [[ $# -gt 0 ]]; then
+    gh auth refresh "$@" || return 1
+  fi
+  GITHUB_TOKEN="$(gh auth token 2>/dev/null)" && export GITHUB_TOKEN || {
+    echo "Failed to get token. Run 'gh auth login' first." >&2
+    return 1
+  }
+  echo "GITHUB_TOKEN refreshed (${#GITHUB_TOKEN} chars)."
+}
+
 sil() {
   local input="$1"; shift
   local base="${input:t:r}"
