@@ -30,9 +30,7 @@ gh-token-refresh() {
     echo "gh is not installed." >&2
     return 1
   fi
-  if [[ $# -gt 0 ]]; then
-    gh auth refresh "$@" || return 1
-  fi
+  gh auth refresh "$@" || return 1
   GITHUB_TOKEN="$(gh auth token 2>/dev/null)" && export GITHUB_TOKEN || {
     echo "Failed to get token. Run 'gh auth login' first." >&2
     return 1
