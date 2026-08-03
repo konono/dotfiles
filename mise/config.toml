@@ -1,6 +1,5 @@
 [tools]
 uv = "latest"
-aube = "latest"
 rust = "stable"
 node = "24"
 bun = "latest"
@@ -19,6 +18,7 @@ glow = "latest"
 oc = "4.21.16"
 opencode = "latest"
 "pipx:ruff" = "latest"
+aube = "latest"
 
 [settings]
 npm.package_manager = "auto"

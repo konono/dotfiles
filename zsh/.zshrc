@@ -98,3 +98,4 @@ if [[ -f "$GCLOUD_SDK_DIR/completion.zsh.inc" ]]; then
   zsh-defer source "$GCLOUD_SDK_DIR/completion.zsh.inc"
 fi
 export PODMAN_COMPOSE_WARNING_LOGS=false
+export LIBVIRT_DEFAULT_URI="qemu:///system"
