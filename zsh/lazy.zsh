@@ -392,7 +392,7 @@ Options:
 
 }
 function oc-login() {
-  local token="" server="" kubeconfig="${PWD}/.kube/config"
+  local token="" server="" username="" password="" kubeconfig="${PWD}/.kube/config"
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -400,20 +400,26 @@ function oc-login() {
         [[ "$1" == *=* ]] && token="${1#*=}" || { token="$2"; shift; }; shift ;;
       --server|--server=*)
         [[ "$1" == *=* ]] && server="${1#*=}" || { server="$2"; shift; }; shift ;;
+      --username|--username=*|-u|-u=*)
+        [[ "$1" == *=* ]] && username="${1#*=}" || { username="$2"; shift; }; shift ;;
+      --password|--password=*|-p|-p=*)
+        [[ "$1" == *=* ]] && password="${1#*=}" || { password="$2"; shift; }; shift ;;
       --kubeconfig|--kubeconfig=*)
         [[ "$1" == *=* ]] && kubeconfig="${1#*=}" || { kubeconfig="$2"; shift; }; shift ;;
       -h|--help)
         cat <<'EOF'
 Usage: oc-login --token <TOKEN> --server <SERVER> [--kubeconfig <PATH>]
+       oc-login --username <USER> --password <PASS> --server <SERVER>
 
 カレントディレクトリに .kube/config を作成して oc login します。
 ~/.kube/config を上書きしません。
 
-ログイン後、同じディレクトリで oc コマンドを使うには:
-  export KUBECONFIG="$PWD/.kube/config"
+認証方式は --token または --username/--password のどちらかを指定します。
 
 Options:
-  --token       OpenShift API トークン (必須)
+  --token       OpenShift API トークン
+  --username/-u ユーザー名
+  --password/-p パスワード
   --server      OpenShift API サーバー URL (必須)
   --kubeconfig  kubeconfig のパス (default: $PWD/.kube/config)
   -h, --help    このヘルプを表示
@@ -423,11 +429,23 @@ EOF
     esac
   done
 
-  [[ -z "$token" ]]  && { echo "❌ --token が必要です"; return 1; }
   [[ -z "$server" ]] && { echo "❌ --server が必要です"; return 1; }
 
+  if [[ -n "$token" && -n "$username" ]]; then
+    echo "❌ --token と --username は同時に指定できません"; return 1
+  fi
+  if [[ -z "$token" && -z "$username" ]]; then
+    echo "❌ --token または --username/--password が必要です"; return 1
+  fi
+
   mkdir -p "$(dirname "$kubeconfig")"
-  KUBECONFIG="$kubeconfig" command oc login --token="$token" --server="$server"
+
+  if [[ -n "$token" ]]; then
+    KUBECONFIG="$kubeconfig" command oc login --token="$token" --server="$server"
+  else
+    [[ -z "$password" ]] && { echo "❌ --password が必要です"; return 1; }
+    KUBECONFIG="$kubeconfig" command oc login --username="$username" --password="$password" --server="$server"
+  fi
 
   local envrc="${PWD}/.envrc"
   local line="export KUBECONFIG=\"\${PWD}/.kube/config\""
