@@ -30,12 +30,28 @@ gh-token-refresh() {
     echo "gh is not installed." >&2
     return 1
   fi
-  gh auth refresh "$@" || return 1
-  GITHUB_TOKEN="$(gh auth token 2>/dev/null)" && export GITHUB_TOKEN || {
+
+  # GITHUB_TOKENが残っていても、保存済みのgh認証を更新する
+  env -u GH_TOKEN -u GITHUB_TOKEN \
+    gh auth refresh --hostname github.com "$@" || return 1
+
+  local token
+  token="$(
+    env -u GH_TOKEN -u GITHUB_TOKEN \
+      gh auth token --hostname github.com 2>/dev/null
+  )" || {
     echo "Failed to get token. Run 'gh auth login' first." >&2
     return 1
   }
-  echo "GITHUB_TOKEN refreshed (${#GITHUB_TOKEN} chars)."
+
+  # mise専用。gh CLIには影響しない
+  export MISE_GITHUB_TOKEN="$token"
+
+  # 古い設定が現在のシェルに残っていた場合に除去
+  unset GH_TOKEN GITHUB_TOKEN
+
+  echo "GitHub credentials refreshed."
+  echo "MISE_GITHUB_TOKEN updated (${#MISE_GITHUB_TOKEN} chars)."
 }
 
 sil() {
