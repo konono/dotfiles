@@ -53,13 +53,3 @@ gh-token-refresh() {
   echo "GitHub credentials refreshed."
   echo "MISE_GITHUB_TOKEN updated (${#MISE_GITHUB_TOKEN} chars)."
 }
-
-sil() {
-  local input="$1"; shift
-  local base="${input:t:r}"
-  silicon "$input" \
-    --background "#00000000" --no-window-controls --no-line-number \
-    --pad-horiz 0 --pad-vert 0 \
-    --shadow-blur-radius 0 --shadow-offset-x 0 --shadow-offset-y 0 \
-    --window-title "${input:t}" -o "${base}.png" "$@"
-}
